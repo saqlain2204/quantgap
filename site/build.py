@@ -120,7 +120,7 @@ def render_model(tpl: Template, p: PackEntry) -> str:
     rows = "\n".join(_row(r) for r in p.results)
     chart_data = [
         {
-            "label": r.quant.label, "size": r.quant.size_bytes, "kld": r.metrics.kld_mean,
+            "label": r.quant.label, "publisher": r.quant.publisher or "", "size": r.quant.size_bytes, "kld": r.metrics.kld_mean,
             "lo": r.metrics.kld_mean_ci95[0], "hi": r.metrics.kld_mean_ci95[1],
             "approx": r.approximate,
         }

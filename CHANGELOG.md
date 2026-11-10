@@ -6,6 +6,8 @@
   GPU, replace the 7 quick-mode ones. They are submittable and each carries its file hash.
 - Cross-machine check: the same quant on the same subset gave KLD 0.002720 (laptop CPU) and 0.002694
   (Colab GPU), a 0.95% difference.
+- The 15 results are in the shared results dataset and the leaderboard site is live with them. Chart labels on the site
+  now show the publisher when two files share a label, and avoid overlapping.
 - New notebook `notebooks/score_quants_colab.ipynb` for scoring quants on a free Colab GPU.
 
 ## 0.1.1

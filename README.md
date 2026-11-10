@@ -7,6 +7,7 @@
 <p align="center">
   <a href="https://github.com/saqlain2204/quantgap/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/saqlain2204/quantgap/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://huggingface.co/quantgap-packs"><img alt="Packs on Hugging Face" src="https://img.shields.io/badge/packs-Hugging%20Face-f59e0b"></a>
+  <a href="https://saqlain2204.github.io/quantgap/"><img alt="Leaderboard" src="https://img.shields.io/badge/leaderboard-live-f59e0b"></a>
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3b82f6">
   <a href="https://github.com/saqlain2204/quantgap/blob/main/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-3b82f6"></a>
 </p>
@@ -178,8 +179,9 @@ A server only reports its own top-N tokens, so those results are marked **approx
 
 ## Submit a result
 
-The public leaderboard site is built and waiting. It opens when there are full results (a `--quick`
-result cannot be submitted), so yours can be one of the first.
+The [leaderboard](https://saqlain2204.github.io/quantgap/) is built from the results dataset
+([quantgap/results](https://huggingface.co/datasets/quantgap/results)) every day. It starts with the 15 sample results above.
+A `--quick` result cannot be submitted, so yours has to be a full run.
 
 ```bash
 quantgap score ./my-quant.gguf --pack <pack>          # writes quantgap-results/<name>.json

@@ -893,7 +893,15 @@ def scene_end(c, t):
         a=a,
         tag="pk",
     )
-    c.runs(960, 885, [("Leaderboard  ", MUTED), ("opening soon", AMBER)], 36, "ui", a=a, tag="lb")
+    c.runs(
+        960,
+        885,
+        [("Leaderboard  ", MUTED), ("saqlain2204.github.io/quantgap", BLUE_L)],
+        36,
+        "ui",
+        a=a,
+        tag="lb",
+    )
     c.text(960, 985, "Open source, Apache-2.0", 28, MUTED, anchor="ma", a=appear(t, 3.2), tag="lic")
 
 

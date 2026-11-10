@@ -50,7 +50,17 @@ def main() -> int:
             if out.exists():
                 print(f"skip (done): {q}")
                 continue
-            cmd = [sys.executable, "-m", "quantgap.cli", "score", q, "--pack", p["pack"], "--json", str(out)]
+            cmd = [
+                sys.executable,
+                "-m",
+                "quantgap.cli",
+                "score",
+                q,
+                "--pack",
+                p["pack"],
+                "--json",
+                str(out),
+            ]
             if a.quick:
                 cmd.append("--quick")
             if a.n_gpu_layers is not None:

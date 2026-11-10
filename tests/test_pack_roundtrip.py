@@ -68,3 +68,46 @@ def test_greedy_rows_saved(tiny_pack):
     rows = tiny_pack.greedy()
     assert len(rows) == tiny_pack.manifest.greedy.n_prompts > 0
     assert all(len(r.prompt_ids) > 0 for r in rows)
+
+
+def test_greedy_ignores_generation_config_sampling_settings(tiny_hf):
+    """Qwen ships repetition_penalty=1.05..1.1 in generation_config. Plain greedy must ignore it."""
+    import copy
+
+    import torch
+
+    from quantgap.pack.runner import greedy_generate
+
+    model, tok = tiny_hf
+    model = copy.deepcopy(model)
+    model.generation_config.repetition_penalty = 5.0
+    model.generation_config.do_sample = True
+    model.generation_config.temperature = 2.0
+    prompt = tok("The quick brown fox", add_special_tokens=False)["input_ids"]
+    got = greedy_generate(model, tok, prompt, 20, "cpu")
+    ids = list(prompt)
+    want = []
+    for _ in range(20):
+        with torch.no_grad():
+            nxt = int(model(input_ids=torch.tensor([ids])).logits[0, -1].argmax())
+        if nxt == tok.eos_token_id:
+            break
+        want.append(nxt)
+        ids.append(nxt)
+    assert got == want
+
+
+def test_refresh_greedy_keeps_topk_and_updates_hashes(tiny_hf, tiny_pack_dir, tmp_path):
+    from quantgap.pack.runner import refresh_greedy
+
+    model, tok = tiny_hf
+    copy_dir = tmp_path / "pack"
+    shutil.copytree(tiny_pack_dir, copy_dir)
+    before = Pack.load(copy_dir)
+    after = refresh_greedy(copy_dir, model, tok)
+    reloaded = Pack.load(copy_dir)  # verifies every hash
+    assert (
+        reloaded.manifest.files["topk-00000.parquet"] == before.manifest.files["topk-00000.parquet"]
+    )
+    assert after.pack_id == reloaded.pack_id
+    assert len(reloaded.greedy()) == len(before.greedy())

@@ -70,12 +70,17 @@ class LlamaCppBackend:
         return gather_from_logits(rows, tgt, gather_ids)
 
     def generate_greedy(self, token_ids: list[int], max_new_tokens: int) -> list[int]:
+        """Plain greedy decoding: no repetition penalty, no sampling. Stops on any end-of-
+        generation token (for Qwen that is both <|im_end|> and <|endoftext|>)."""
         llm = self.llm
         llm.reset()
-        out: list[int] = []
+        is_eog = getattr(llm._model, "token_is_eog", None)
         eos = llm.token_eos()
-        for tok in llm.generate(token_ids, top_k=1, top_p=1.0, temp=0.0, reset=True):
-            if tok == eos or len(out) >= max_new_tokens:
+        out: list[int] = []
+        for tok in llm.generate(
+            token_ids, top_k=1, top_p=1.0, temp=0.0, repeat_penalty=1.0, reset=True
+        ):
+            if tok == eos or (is_eog is not None and is_eog(tok)) or len(out) >= max_new_tokens:
                 break
             out.append(int(tok))
         return out

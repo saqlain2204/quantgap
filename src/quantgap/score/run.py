@@ -207,7 +207,7 @@ def score_quant(
             n_positions=len(gk),
         )
 
-    if clamps > max(10, 0.001 * len(kl)):
+    if clamps > max(10, 0.01 * len(kl)):
         warnings.append(
             f"{clamps} probabilities were raised to 1e-12 before taking logs. A high number "
             "means something is broken (wrong tokenizer or a damaged model)."

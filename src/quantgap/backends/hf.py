@@ -60,25 +60,9 @@ class HFBackend:
         return gather_from_logits(rows, tgt, gather_ids)
 
     def generate_greedy(self, token_ids: list[int], max_new_tokens: int) -> list[int]:
-        import torch
+        from quantgap.pack.runner import greedy_generate
 
-        inp = torch.tensor([token_ids], device=self.device)
-        eos = self.tok.eos_token_id
-        with torch.no_grad():
-            out = self.model.generate(
-                input_ids=inp,
-                attention_mask=torch.ones_like(inp),
-                max_new_tokens=max_new_tokens,
-                do_sample=False,
-                temperature=None,
-                top_p=None,
-                top_k=None,
-                pad_token_id=self.tok.pad_token_id if self.tok.pad_token_id is not None else eos,
-            )
-        new = out[0, len(token_ids) :].tolist()
-        if eos is not None and eos in new:
-            new = new[: new.index(eos)]
-        return new
+        return greedy_generate(self.model, self.tok, token_ids, max_new_tokens, self.device)
 
     def decode(self, ids: list[int]) -> str:
         return self.tok.decode(ids, skip_special_tokens=True)

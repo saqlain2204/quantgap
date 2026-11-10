@@ -95,10 +95,28 @@ def _topk_batch(model: Any, seqs: list[RenderedSeq], k: int, device: Any) -> lis
     return out
 
 
-def _greedy(model: Any, tok: Any, g: RenderedGreedy, max_new: int, device: Any) -> list[int]:
+def eos_ids(model: Any, tok: Any) -> set[int]:
+    """Every id that ends a generation: the tokenizer's EOS plus the model's generation_config."""
+    out: set[int] = set()
+    if tok.eos_token_id is not None:
+        out.add(int(tok.eos_token_id))
+    gc = getattr(getattr(model, "generation_config", None), "eos_token_id", None)
+    if isinstance(gc, int):
+        out.add(gc)
+    elif gc:
+        out.update(int(x) for x in gc)
+    return out
+
+
+def greedy_generate(
+    model: Any, tok: Any, prompt_ids: list[int], max_new: int, device: Any
+) -> list[int]:
+    """Plain greedy decoding. Sampling settings from the model's generation_config (temperature,
+    top_p, top_k and above all repetition_penalty, which Qwen sets to 1.05 to 1.1) are switched
+    off on purpose: every backend must decode the same way or the comparison is unfair."""
     import torch
 
-    inp = torch.tensor([g.prompt_ids], device=device)
+    inp = torch.tensor([prompt_ids], device=device)
     with torch.no_grad():
         out = model.generate(
             input_ids=inp,
@@ -108,13 +126,19 @@ def _greedy(model: Any, tok: Any, g: RenderedGreedy, max_new: int, device: Any) 
             temperature=None,
             top_p=None,
             top_k=None,
+            repetition_penalty=1.0,
             pad_token_id=tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id,
         )
-    new = out[0, len(g.prompt_ids) :].tolist()
-    eos = {tok.eos_token_id} if tok.eos_token_id is not None else set()
-    if eos & set(new):
-        new = new[: next(i for i, t in enumerate(new) if t in eos)]
+    new = out[0, len(prompt_ids) :].tolist()
+    stop = eos_ids(model, tok)
+    for i, t in enumerate(new):
+        if t in stop:
+            return new[:i]
     return new
+
+
+def _greedy(model: Any, tok: Any, g: RenderedGreedy, max_new: int, device: Any) -> list[int]:
+    return greedy_generate(model, tok, g.prompt_ids, max_new, device)
 
 
 def build_pack_from_objects(
@@ -231,3 +255,47 @@ def load_reference(
         dev = torch.device("cpu")
         label = "cpu"
     return model, tok, dev, str(dtype).replace("torch.", ""), label
+
+
+def refresh_greedy(
+    pack_dir: str | Path,
+    model: Any,
+    tok: Any,
+    device: Any = "cpu",
+    progress: Callable[[int, int], None] | None = None,
+) -> Manifest:
+    """Regenerate only greedy.parquet of an existing pack (keeps the top-k shards).
+
+    The pack id changes because the manifest holds the hash of every file."""
+    import json
+
+    from quantgap.pack.reader import Pack
+    from quantgap.util import sha256_file
+
+    pack_dir = Path(pack_dir)
+    pack = Pack.load(pack_dir)
+    old = pack.greedy()
+    rows = []
+    for i, g in enumerate(old):
+        ref = greedy_generate(
+            model, tok, list(g.prompt_ids), pack.manifest.greedy.max_new_tokens, device
+        )
+        rows.append(
+            {
+                "seq_id": g.seq_id,
+                "group": g.group,
+                "lang": g.lang,
+                "prompt_ids": list(g.prompt_ids),
+                "ref_ids": ref,
+                "ref_text": tok.decode(ref, skip_special_tokens=True),
+            }
+        )
+        if progress:
+            progress(i + 1, len(old))
+    PackWriter(pack_dir, k=pack.manifest.k, logp_dtype=pack.manifest.logp_dtype).write_greedy(rows)
+    files = dict(pack.manifest.files)
+    files["greedy.parquet"] = sha256_file(pack_dir / "greedy.parquet")
+    manifest = pack.manifest.model_copy(update={"files": files})
+    text = json.dumps(manifest.model_dump(by_alias=True, mode="json"), indent=2, ensure_ascii=False)
+    (pack_dir / "manifest.json").write_text(text + "\n", encoding="utf-8")
+    return manifest

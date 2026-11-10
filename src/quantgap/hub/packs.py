@@ -77,14 +77,25 @@ def auto_find_pack(base_model: str | None, settings: Settings) -> Pack:
     return load_pack(matches[0][0])
 
 
+def _stem(repo: str) -> str:
+    return _norm(repo).split("/")[-1]
+
+
 def fine_tune_warning(base_model: str | None, pack: Pack) -> str | None:
-    """E2: the quant says it comes from a different model than the pack's."""
-    if base_model and _norm(base_model) != _norm(pack.manifest.model.repo):
-        return (
-            f"This looks like a fine-tune ({base_model}, not {pack.manifest.model.repo}). "
-            "Its drift includes the fine-tuning, not only quantization."
-        )
-    return None
+    """E2: the quant says it comes from a different model than the pack's.
+
+    GGUF files often name the *parent* of an instruct model (Qwen2.5-0.5B for
+    Qwen2.5-0.5B-Instruct), so names where one starts with the other count as the same family.
+    """
+    if not base_model:
+        return None
+    a, b = _stem(base_model), _stem(pack.manifest.model.repo)
+    if a == b or a.startswith(b) or b.startswith(a):
+        return None
+    return (
+        f"This looks like a fine-tune ({base_model}, not {pack.manifest.model.repo}). "
+        "Its drift includes the fine-tuning, not only quantization."
+    )
 
 
 def dataset_card(m: Manifest) -> str:

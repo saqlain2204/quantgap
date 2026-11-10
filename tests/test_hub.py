@@ -84,3 +84,45 @@ def test_submit_refuses_quick_and_unhashed():
     r.quant.sha256 = None
     with pytest.raises(SubmitError, match="hash"):
         build_submission(r)
+
+
+def _manifest(repo):
+    from quantgap.models import (
+        GreedyInfo,
+        Manifest,
+        ModelRef,
+        ProbesInfo,
+        RunnerInfo,
+        TokenizerInfo,
+    )
+
+    return Manifest(
+        model=ModelRef(repo=repo),
+        tokenizer=TokenizerInfo(vocab_size=10),
+        probes=ProbesInfo(set="v1", sha256="x", n_sequences=1, n_positions=1),
+        k=4,
+        greedy=GreedyInfo(n_prompts=1, max_new_tokens=1),
+        runner=RunnerInfo(quantgap="0.1.0"),
+        created_at="now",
+    )
+
+
+def test_auto_find_pack_exact_then_family(monkeypatch):
+    from quantgap.config import Settings
+    from quantgap.hub import packs as hp
+
+    monkeypatch.setattr(hp, "load_pack", lambda ref: ref)
+    packs = [
+        ("p/inst", _manifest("Qwen/Qwen2.5-0.5B-Instruct")),
+        ("p/other", _manifest("meta/Llama-3-8B")),
+    ]
+    monkeypatch.setattr(hp, "list_packs", lambda settings: packs)
+    # a GGUF that names the parent model still finds the instruct pack
+    assert hp.auto_find_pack("Qwen/Qwen2.5-0.5B", Settings()) == "p/inst"
+    # exact match wins over a family match
+    packs.append(("p/base", _manifest("Qwen/Qwen2.5-0.5B")))
+    assert hp.auto_find_pack("Qwen/Qwen2.5-0.5B", Settings()) == "p/base"
+    with pytest.raises(hp.PackNotFound, match="No pack found"):
+        hp.auto_find_pack("mistralai/Mistral-7B", Settings())
+    with pytest.raises(hp.PackNotFound, match="does not say"):
+        hp.auto_find_pack(None, Settings())

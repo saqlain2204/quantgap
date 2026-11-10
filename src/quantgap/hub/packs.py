@@ -61,9 +61,12 @@ def auto_find_pack(base_model: str | None, settings: Settings) -> Pack:
             "automatically. Pass --pack PACK_REF (a pack folder or a Hub dataset id). "
             "List packs with: quantgap packs list"
         )
-    matches = [
-        (ds, m) for ds, m in list_packs(settings) if _norm(m.model.repo) == _norm(base_model)
-    ]
+    packs = list_packs(settings)
+    # Exact model name first. Many GGUFs name the parent of an instruct model as base_model
+    # (Qwen2.5-0.5B for Qwen2.5-0.5B-Instruct), so fall back to the same model family.
+    matches = [(ds, m) for ds, m in packs if _norm(m.model.repo) == _norm(base_model)]
+    if not matches:
+        matches = [(ds, m) for ds, m in packs if _same_family(base_model, m.model.repo)]
     if not matches:
         raise PackNotFound(
             f"No pack found for {base_model}. Make one with: quantgap pack {base_model} "
@@ -81,6 +84,11 @@ def _stem(repo: str) -> str:
     return _norm(repo).split("/")[-1]
 
 
+def _same_family(a: str, b: str) -> bool:
+    x, y = _stem(a), _stem(b)
+    return x == y or x.startswith(y) or y.startswith(x)
+
+
 def fine_tune_warning(base_model: str | None, pack: Pack) -> str | None:
     """E2: the quant says it comes from a different model than the pack's.
 
@@ -89,8 +97,7 @@ def fine_tune_warning(base_model: str | None, pack: Pack) -> str | None:
     """
     if not base_model:
         return None
-    a, b = _stem(base_model), _stem(pack.manifest.model.repo)
-    if a == b or a.startswith(b) or b.startswith(a):
+    if _same_family(base_model, pack.manifest.model.repo):
         return None
     return (
         f"This looks like a fine-tune ({base_model}, not {pack.manifest.model.repo}). "

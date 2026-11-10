@@ -3,7 +3,7 @@
 Real measurements made by quantgap 0.1.0. Nothing here is estimated or copied from a publisher.
 
 - **Reference model:** `Qwen/Qwen2.5-0.5B-Instruct` at commit `7ae557604adf67be50417f59c2c2f167def9a775` (Apache-2.0), run in float32 on CPU.
-- **Pack:** `Qwen2.5-0.5B-Instruct@f499c4436fa8e370`, probe set v1, k=32, 49,013 scored positions, built 2026-11-10T09:37:57Z.
+- **Pack (public):** https://huggingface.co/datasets/quantgap-packs/Qwen2.5-0.5B-Instruct, `Qwen2.5-0.5B-Instruct@f499c4436fa8e370`, probe set v1, k=32, 49,013 scored positions, built 2026-11-10T09:37:57Z.
 - **Scoring:** llama-cpp-python 0.3.36, `--n-gpu-layers 0`, `--quick`, on Intel64 Family 6 Model 142 Stepping 10, GenuineIntel (Windows).
 - **Not submittable:** these are `--quick` results (first 25% of each group), so they are a first look, not leaderboard entries.
 

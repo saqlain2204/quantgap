@@ -37,7 +37,9 @@ shared). Pass one with `--pack`, or let quantgap look one up on the Hub. See
 
 ## Sample result (real, small, one machine)
 
-Model: `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0). The numbers below were measured by quantgap on one
+Model: `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0). Its pack is public at
+[quantgap-packs/Qwen2.5-0.5B-Instruct](https://huggingface.co/datasets/quantgap-packs/Qwen2.5-0.5B-Instruct),
+so `quantgap score hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf` finds it by itself. The numbers below were measured by quantgap on one
 CPU laptop, against a pack made from the original weights. Full table, hashes and settings:
 [docs/RESULTS.md](docs/RESULTS.md).
 

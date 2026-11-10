@@ -1,0 +1,56 @@
+name: Leaderboard
+
+on:
+  schedule:
+    - cron: "23 4 * * *" # daily
+  workflow_dispatch:
+  repository_dispatch:
+    types: [results-updated] # call this from a webhook when a results PR is merged
+  push:
+    branches: [main]
+    paths: ["site/**", "src/quantgap/models.py"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install . huggingface_hub
+      - name: Download the results dataset
+        env:
+          RESULTS_REPO: ${{ vars.QUANTGAP_RESULTS_REPO || 'quantgap/results' }}
+        run: |
+          python - <<'EOF'
+          import os
+          from huggingface_hub import snapshot_download
+          try:
+              snapshot_download(os.environ["RESULTS_REPO"], repo_type="dataset", local_dir="results-data")
+          except Exception as e:  # dataset may not exist yet: build an empty site
+              print("no results dataset yet:", e)
+          EOF
+      - run: python site/build.py --results results-data/results --out site/dist
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

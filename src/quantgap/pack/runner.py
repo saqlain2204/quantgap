@@ -211,7 +211,12 @@ def load_reference(
         raise RuntimeError("--device cuda was asked for, but no CUDA GPU was found.")
     dtype = torch.bfloat16 if use_cuda else torch.float32
     tok = AutoTokenizer.from_pretrained(repo, revision=revision)
-    kwargs: dict[str, Any] = {"revision": revision, "torch_dtype": dtype}
+    # `torch_dtype` was renamed `dtype` in newer transformers; pass whichever this version knows.
+    import transformers
+
+    major_minor = tuple(int(x) for x in transformers.__version__.split(".")[:2])
+    dtype_key = "dtype" if major_minor >= (4, 56) else "torch_dtype"
+    kwargs: dict[str, Any] = {"revision": revision, dtype_key: dtype}
     if use_cuda and torch.cuda.device_count() > 1:
         kwargs["device_map"] = "auto"  # spread across GPUs (Kaggle T4 x2), offload if needed
     model = AutoModelForCausalLM.from_pretrained(repo, **kwargs)

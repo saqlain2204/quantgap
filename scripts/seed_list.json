@@ -1,0 +1,20 @@
+{
+  "packs": [
+    {
+      "pack": "packs/Qwen2.5-0.5B-Instruct",
+      "quants": [
+        {
+          "repo": "bartowski/Qwen2.5-0.5B-Instruct-GGUF",
+          "glob": "*-Q[2-8]_K_[SM].gguf"
+        },
+        "hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q8_0.gguf",
+        "hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q6_K.gguf",
+        "hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-IQ4_XS.gguf",
+        "hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-IQ3_XS.gguf",
+        "hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-IQ2_M.gguf",
+        "hf://Qwen/Qwen2.5-0.5B-Instruct-GGUF/qwen2.5-0.5b-instruct-q4_k_m.gguf",
+        "hf://Qwen/Qwen2.5-0.5B-Instruct-GGUF/qwen2.5-0.5b-instruct-q8_0.gguf"
+      ]
+    }
+  ]
+}

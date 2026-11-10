@@ -13,3 +13,4 @@ tests/fixtures/tiny_pack/
 site/dist/
 .env
 .DS_Store
+packs/

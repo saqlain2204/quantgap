@@ -90,7 +90,11 @@ def build_model(out: Path, seed: int = 0):
 
 def _permute(w: np.ndarray, n_head: int) -> np.ndarray:
     """HF stores rotary q/k weights in a different order than llama.cpp's GGUF layout."""
-    return w.reshape(n_head, 2, w.shape[0] // n_head // 2, *w.shape[1:]).swapaxes(1, 2).reshape(w.shape)
+    return (
+        w.reshape(n_head, 2, w.shape[0] // n_head // 2, *w.shape[1:])
+        .swapaxes(1, 2)
+        .reshape(w.shape)
+    )
 
 
 def write_gguf_f16(model, tok, path: Path) -> None:
@@ -174,7 +178,9 @@ def build(out: Path, with_gguf: bool = True) -> Path:
             write_gguf_f16(model, tok, out / "tiny-f16.gguf")
             quantize(out / "tiny-f16.gguf", out / "tiny-q4_0.gguf", "MOSTLY_Q4_0")
         except ImportError as e:
-            print(f"skipping GGUF files ({e}); install the dev extras: pip install -e .[dev] llama-cpp-python")
+            print(
+                f"skipping GGUF files ({e}); install the dev extras: pip install -e .[dev] llama-cpp-python"
+            )
     return out
 
 

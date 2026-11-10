@@ -272,7 +272,7 @@ def score_lines(r):
         ("hdr", f"quantgap {r.quantgap}  pack: {r.pack_name}"),
         (
             "hdr",
-            f"quant: {r.quant.label}  {human_size(r.quant.size_bytes)}  {r.backend.name}  quick",
+            f"quant: {r.quant.label}  {human_size(r.quant.size_bytes)}  {r.backend.name}",
         ),
         ("gap", ""),
         ("col", ("metric", "value", "note")),
@@ -591,7 +591,7 @@ def scene_score(c, t):
         0.9,
         60,
     )
-    cmd2 = f"quantgap score {SCORE_CMD_URL} --quick"
+    cmd2 = f"quantgap score {SCORE_CMD_URL}"
     e2 = term.cmd(1, cmd2, t, e1 + 0.7, 62, cursor_end=False)
     lines = score_lines(result("bartowski", "Q4_K_M"))
     row, start = 2, e2 + 0.7
@@ -608,7 +608,7 @@ def scene_score(c, t):
     c.text(
         110,
         1020,
-        "Real output: Qwen2.5-0.5B-Instruct Q4_K_M, quick mode, one CPU laptop.",
+        "Real output: Qwen2.5-0.5B-Instruct Q4_K_M, full mode, free Colab T4 GPU.",
         22,
         MUTED,
         a=a,
@@ -620,7 +620,9 @@ def scene_compare(c, t):
     kicker_title(c, t, "USE IT", "2. Compare quants and pick one for your memory")
     term = Terminal(c, 26)
     term.window(t, "terminal")
-    cmd = 'quantgap compare --repo bartowski/Qwen2.5-0.5B-Instruct-GGUF --glob "*K_M*" --budget 1.6GB --quick'
+    cmd = (
+        'quantgap compare --repo bartowski/Qwen2.5-0.5B-Instruct-GGUF --glob "*K_M*" --budget 1.6GB'
+    )
     e = term.cmd(0, cmd, t, 0.9, 62)
     head, rows, sentence = compare_view()
     start = e + 0.8
@@ -639,7 +641,7 @@ def scene_compare(c, t):
     c.text(
         110,
         1020,
-        "Real numbers from the sample run (columns trimmed to fit). Add --chart chart.svg to also draw the quality-vs-size chart.",
+        "Real numbers from the full-mode sample run (columns trimmed to fit). Add --chart chart.svg to also draw the quality-vs-size chart.",
         22,
         MUTED,
         a=a,
@@ -747,8 +749,8 @@ def scene_chart(c, t):
         yb = c.para(1400, y + 46, body, 27, 410, MUTED, a=a, lh=1.38, tag=f"nb{i}", dy=(1 - a) * 12)
         y = yb + 34
     a = appear(t, 8.8)
-    c.text(1400, 940, "Qwen2.5-0.5B-Instruct, 7 GGUF files,", 21, MUTED, a=a, tag="f1")
-    c.text(1400, 970, "quick mode, one CPU laptop.", 21, MUTED, a=a, tag="f2")
+    c.text(1400, 940, "Qwen2.5-0.5B-Instruct, 7 of 15 GGUF files", 21, MUTED, a=a, tag="f1")
+    c.text(1400, 970, "shown, full mode, free Colab T4.", 21, MUTED, a=a, tag="f2")
 
 
 def scene_tiles(c, t):
@@ -828,7 +830,7 @@ def scene_limits(c, t):
         ),
         (
             "The numbers in this video are a small demo.",
-            "One 0.5B model, quick mode, one laptop. Packs for more models are the next step.",
+            "One 0.5B model, full mode, one free GPU. Packs for more models are the next step.",
         ),
     ]
     y = 330

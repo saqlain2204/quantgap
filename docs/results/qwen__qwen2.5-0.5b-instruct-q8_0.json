@@ -1,0 +1,88 @@
+{
+  "schema": "quantgap.result/1",
+  "pack_id": "f499c4436fa8e370",
+  "pack_name": "Qwen2.5-0.5B-Instruct@f499c4436fa8e370",
+  "quant": {
+    "source": "hf://Qwen/Qwen2.5-0.5B-Instruct-GGUF/qwen2.5-0.5b-instruct-q8_0.gguf",
+    "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+    "size_bytes": 675710816,
+    "label": "Q8_0",
+    "publisher": "Qwen",
+    "format": "gguf"
+  },
+  "backend": {
+    "name": "llamacpp",
+    "version": "llama-cpp-python 0.3.36",
+    "settings": {
+      "ctx": 2048,
+      "n_gpu_layers": -1
+    }
+  },
+  "metrics": {
+    "kld_mean": 0.0275076749,
+    "kld_mean_ci95": [
+      0.0250861024,
+      0.0304117053
+    ],
+    "kld_p99": 0.284358952,
+    "kld_p999": 1.07268434,
+    "top1_agree": 0.914430865,
+    "ppl_ratio": 1.03524115,
+    "n_positions": 49013,
+    "n_sequences": 160,
+    "clamp_count": 343,
+    "by_group": {
+      "general": {
+        "kld_mean": 0.017181053,
+        "top1_agree": 0.921095727,
+        "n_positions": 13434
+      },
+      "chat": {
+        "kld_mean": 0.0146684271,
+        "top1_agree": 0.928885953,
+        "n_positions": 4542
+      },
+      "code": {
+        "kld_mean": 0.0186409174,
+        "top1_agree": 0.940086291,
+        "n_positions": 10198
+      },
+      "math": {
+        "kld_mean": 0.0653940073,
+        "top1_agree": 0.934015452,
+        "n_positions": 4789
+      },
+      "multilingual": {
+        "kld_mean": 0.035015344,
+        "top1_agree": 0.877527789,
+        "n_positions": 14934
+      },
+      "json": {
+        "kld_mean": 0.0220504328,
+        "top1_agree": 0.950716846,
+        "n_positions": 1116
+      }
+    },
+    "damage": {
+      "n_prompts": 48,
+      "loops": 27,
+      "loops_ref": 23,
+      "loop_rate": 0.5625,
+      "wrong_script": 0,
+      "wrong_script_ref": 0,
+      "wrong_script_rate": 0.0,
+      "json_valid": 8,
+      "json_valid_ref": 8,
+      "json_n": 8,
+      "json_valid_rate": 1.0,
+      "first_divergence_median": 10.5
+    }
+  },
+  "hardware": "Tesla T4 / CUDA (Linux)",
+  "quantgap": "0.1.1",
+  "created_at": "2026-11-10T17:15:27Z",
+  "quick": false,
+  "approximate": false,
+  "nondeterministic": false,
+  "warnings": []
+}

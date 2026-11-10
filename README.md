@@ -46,37 +46,49 @@ Mac. If you try it, build llama-cpp-python from source first
 (`CMAKE_ARGS="-DGGML_METAL=on" pip install llama-cpp-python`, needs the Xcode command line tools),
 then `pip install quantgap`, and tell us how it went.
 
+**No GPU?** Score quants on a free Colab T4 instead:
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/saqlain2204/quantgap/blob/main/notebooks/score_quants_colab.ipynb) it took about 3 minutes
+per quant of a 0.5B model. (The notebook was tested on a free T4 runtime on 2026-11-10.)
+
 You need a **pack** for the model (the original's answers on a fixed set of texts, made once and
 shared). Pass one with `--pack`, or let quantgap look one up on the Hub. See
 [Make a pack for your own model](#make-a-pack-for-your-own-model).
 
-## Sample result (real, small, one machine)
+## Sample results (real, small model)
 
 Model: `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0). Its pack is public at
 [quantgap-packs/Qwen2.5-0.5B-Instruct](https://huggingface.co/datasets/quantgap-packs/Qwen2.5-0.5B-Instruct),
-so `quantgap score hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf` finds it by itself. The numbers below were measured by quantgap on one
-CPU laptop, against a pack made from the original weights. Full table, hashes and settings:
+so `quantgap score hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf` finds it by itself.
+The numbers below were measured by quantgap against a pack made from the original weights. Hashes and settings:
 [docs/RESULTS.md](https://github.com/saqlain2204/quantgap/blob/main/docs/RESULTS.md).
 
 | Publisher | Quant | Size | KLD mean (95% interval) | Worst 1% | Top-1 | PPL ratio | Loops (quant / original) | Wrong script | JSON ok |
 |---|---|---|---|---|---|---|---|---|---|
-| bartowski | Q8_0 | 531.1 MB | 0.0027 (0.0024 to 0.0031) | 0.027 | 97.1% | 1.003 | 5 / 6 | 0 | 2 / 2 |
-| bartowski | Q6_K | 505.7 MB | 0.0069 (0.0057 to 0.0083) | 0.064 | 95.5% | 1.008 | 8 / 6 | 0 | 2 / 2 |
-| bartowski | Q5_K_M | 420.1 MB | 0.0241 (0.0190 to 0.0298) | 0.264 | 92.3% | 1.024 | 5 / 6 | 0 | 2 / 2 |
-| bartowski | Q4_K_M | 397.8 MB | 0.0389 (0.0316 to 0.0478) | 0.376 | 89.9% | 1.041 | 6 / 6 | 0 | 2 / 2 |
-| Qwen | Q4_K_M | 491.4 MB | 0.0787 (0.0627 to 0.0950) | 0.807 | 85.8% | 1.064 | 7 / 6 | 0 | 2 / 2 |
-| bartowski | Q3_K_M | 355.5 MB | 0.0828 (0.0672 to 0.1009) | 0.852 | 85.9% | 1.073 | 7 / 6 | 0 | 2 / 2 |
-| bartowski | Q2_K | 338.6 MB | 0.2052 (0.1672 to 0.2386) | 2.080 | 77.8% | 1.200 | 9 / 6 | 0 | 2 / 2 |
+| bartowski | Q8_0 | 531.1 MB | 0.0025 (0.0023 to 0.0026) | 0.021 | 97.1% | 1.003 | 27 / 23 | 0 | 7 / 8 |
+| bartowski | Q6_K | 505.7 MB | 0.0043 (0.0039 to 0.0047) | 0.039 | 96.6% | 1.003 | 22 / 23 | 0 | 8 / 8 |
+| bartowski | Q5_K_M | 420.1 MB | 0.0229 (0.0205 to 0.0258) | 0.249 | 92.3% | 1.023 | 24 / 23 | 0 | 8 / 8 |
+| Qwen | Q8_0 | 675.7 MB | 0.0275 (0.0251 to 0.0304) | 0.284 | 91.4% | 1.035 | 27 / 23 | 0 | 8 / 8 |
+| bartowski | Q4_K_M | 397.8 MB | 0.0337 (0.0303 to 0.0382) | 0.325 | 90.6% | 1.035 | 29 / 23 | 0 | 8 / 8 |
+| bartowski | Q4_K_S | 385.5 MB | 0.0429 (0.0384 to 0.0485) | 0.453 | 89.3% | 1.042 | 22 / 23 | 0 | 8 / 8 |
+| Qwen | Q5_K_M | 522.2 MB | 0.0498 (0.0451 to 0.0551) | 0.546 | 88.8% | 1.057 | 24 / 23 | 0 | 8 / 8 |
+| Qwen | Q4_K_M | 491.4 MB | 0.0647 (0.0587 to 0.0716) | 0.691 | 87.2% | 1.066 | 31 / 23 | 0 | 8 / 8 |
+| bartowski | Q3_K_M | 355.5 MB | 0.0724 (0.0648 to 0.0815) | 0.848 | 86.5% | 1.072 | 27 / 23 | 0 | 8 / 8 |
+| bartowski | IQ4_XS | 349.4 MB | 0.0837 (0.0748 to 0.0943) | 1.029 | 86.0% | 1.076 | 27 / 23 | 0 | 7 / 8 |
+| Qwen | Q3_K_M | 432.0 MB | 0.1109 (0.1002 to 0.1235) | 1.323 | 83.9% | 1.115 | 26 / 23 | 0 | 8 / 8 |
+| bartowski | IQ3_XS | 338.6 MB | 0.1258 (0.1140 to 0.1399) | 1.398 | 82.6% | 1.132 | 31 / 23 | 0 | 8 / 8 |
+| bartowski | Q2_K | 338.6 MB | 0.1706 (0.1561 to 0.1872) | 1.831 | 79.6% | 1.197 | 34 / 23 | 0 | 8 / 8 |
+| Qwen | Q2_K | 415.2 MB | 0.1761 (0.1605 to 0.1954) | 1.958 | 79.5% | 1.214 | 29 / 23 | 0 | 8 / 8 |
+| bartowski | IQ2_M | 328.6 MB | 0.2604 (0.2404 to 0.2829) | 2.453 | 74.9% | 1.310 | 34 / 23 | 0 | 8 / 8 |
 
-Quick mode (first 25% of each group, 12 greedy prompts), llama.cpp on CPU, one machine. Lower KLD is better. Loops are counted out of 12 prompts, so differences of one or two are noise.
+Full mode: all 160 texts and 48 generations per quant, llama.cpp on a free Colab Tesla T4 GPU. Lower KLD is better. The original loops in 23 of 48 prompts under plain greedy decoding (common for a 0.5B model), so read the loops column relative to that.
 
 ![quality versus size](https://raw.githubusercontent.com/saqlain2204/quantgap/main/docs/chart.png)
 
-**One finding worth a second look:** the two files labelled `Q4_K_M` are not the same quality. The official Qwen file (491 MB) drifted about twice as far (KLD 0.0787) as bartowski's (398 MB, KLD 0.0389), and the intervals do not overlap. We did not investigate why. A label like `Q4_K_M` names a recipe, not one fixed result, which is the point of measuring.
+**What the data shows:** bartowski's files form a steady frontier. For the same label, the official Qwen file drifted further in 5 of 5 matched pairs (for example Q4_K_M: 0.0647 for Qwen's 491.4 MB file against 0.0337 for bartowski's 397.8 MB file, about 1.9 times as far and 94 MB bigger). We did not investigate why. A label like `Q4_K_M` names a recipe, not one fixed result, which is the point of measuring.
 
-The numbers fall steadily with file size: Q8_0 and Q6_K stay close to the original, Q4_K_M is a clear
-step away, and Q2_K has drifted a lot. This is a small model on one machine in quick mode, so treat it as
-a demonstration of the tool, not a verdict on these quants.
+Same-machine check: the same Q8_0 file on the same subset of texts gave a KLD of 0.002720 on a laptop CPU
+and 0.002694 on the Colab GPU, a difference of 0.95%. This is a small model and a demonstration of the tool, not a verdict on
+these publishers.
 
 ## How it works
 

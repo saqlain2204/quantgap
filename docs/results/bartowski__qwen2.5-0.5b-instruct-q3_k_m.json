@@ -15,73 +15,73 @@
     "version": "llama-cpp-python 0.3.36",
     "settings": {
       "ctx": 2048,
-      "n_gpu_layers": 0
+      "n_gpu_layers": -1
     }
   },
   "metrics": {
-    "kld_mean": 0.0827864524,
+    "kld_mean": 0.0723903662,
     "kld_mean_ci95": [
-      0.0672070827,
-      0.100919546
+      0.0648469014,
+      0.0815494031
     ],
-    "kld_p99": 0.852407998,
-    "kld_p999": 3.71469975,
-    "top1_agree": 0.859144191,
-    "ppl_ratio": 1.07323623,
-    "n_positions": 10493,
-    "n_sequences": 41,
-    "clamp_count": 77,
+    "kld_p99": 0.848259172,
+    "kld_p999": 3.34207899,
+    "top1_agree": 0.865260237,
+    "ppl_ratio": 1.07151351,
+    "n_positions": 49013,
+    "n_sequences": 160,
+    "clamp_count": 201,
     "by_group": {
       "general": {
-        "kld_mean": 0.0419626306,
-        "top1_agree": 0.874820557,
-        "n_positions": 3483
+        "kld_mean": 0.0416784921,
+        "top1_agree": 0.878219443,
+        "n_positions": 13434
       },
       "chat": {
-        "kld_mean": 0.0489768506,
-        "top1_agree": 0.865687303,
-        "n_positions": 953
+        "kld_mean": 0.0456266979,
+        "top1_agree": 0.870981946,
+        "n_positions": 4542
       },
       "code": {
-        "kld_mean": 0.0468897799,
-        "top1_agree": 0.909340659,
-        "n_positions": 1092
+        "kld_mean": 0.0436688772,
+        "top1_agree": 0.905471661,
+        "n_positions": 10198
       },
       "math": {
-        "kld_mean": 0.264862448,
-        "top1_agree": 0.866359447,
-        "n_positions": 868
+        "kld_mean": 0.236568097,
+        "top1_agree": 0.86197536,
+        "n_positions": 4789
       },
       "multilingual": {
-        "kld_mean": 0.0991169557,
-        "top1_agree": 0.823838278,
-        "n_positions": 3809
+        "kld_mean": 0.076014782,
+        "top1_agree": 0.822753449,
+        "n_positions": 14934
       },
       "json": {
-        "kld_mean": 0.0597456068,
-        "top1_agree": 0.902777778,
-        "n_positions": 288
+        "kld_mean": 0.0604472356,
+        "top1_agree": 0.901433692,
+        "n_positions": 1116
       }
     },
     "damage": {
-      "n_prompts": 12,
-      "loops": 7,
-      "loops_ref": 6,
-      "loop_rate": 0.5833333333333334,
+      "n_prompts": 48,
+      "loops": 27,
+      "loops_ref": 23,
+      "loop_rate": 0.5625,
       "wrong_script": 0,
       "wrong_script_ref": 0,
       "wrong_script_rate": 0.0,
-      "json_valid": 2,
-      "json_valid_ref": 2,
-      "json_n": 2,
+      "json_valid": 8,
+      "json_valid_ref": 8,
+      "json_n": 8,
       "json_valid_rate": 1.0,
-      "first_divergence_median": 11.5
+      "first_divergence_median": 5.0
     }
   },
-  "hardware": "Intel64 Family 6 Model 142 Stepping 10, GenuineIntel (Windows)",
-  "quantgap": "0.1.0",
-  "created_at": "2026-11-10T10:54:30Z",
-  "quick": true,
+  "hardware": "Tesla T4 / CUDA (Linux)",
+  "quantgap": "0.1.1",
+  "created_at": "2026-11-10T17:02:50Z",
+  "quick": false,
   "approximate": false,
   "nondeterministic": false,
   "warnings": []

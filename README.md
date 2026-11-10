@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/saqlain2204/quantgap/main/assets/logo-banner.svg" alt="quantgap: how much did this quant lose?" width="560">
+  <img src="https://raw.githubusercontent.com/saqlain2204/quantgap/main/assets/logo-banner.png" alt="quantgap: how much did this quant lose?" width="560">
 </p>
 
 <h1 align="center">quantgap: how much did this quant lose?</h1>
@@ -7,19 +7,18 @@
 <p align="center">
   <a href="https://github.com/saqlain2204/quantgap/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/saqlain2204/quantgap/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://huggingface.co/quantgap-packs"><img alt="Packs on Hugging Face" src="https://img.shields.io/badge/packs-Hugging%20Face-f59e0b"></a>
-  <a href="https://saqlain2204.github.io/quantgap/"><img alt="Leaderboard" src="https://img.shields.io/badge/leaderboard-site-f59e0b"></a>
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3b82f6">
-  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-3b82f6"></a>
+  <a href="https://github.com/saqlain2204/quantgap/blob/main/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-3b82f6"></a>
 </p>
 
 **quantgap measures how far a quantized model drifts from the original, on your own machine, without running the original.**
 
 <p align="center">
-  <a href="docs/launch.mp4" title="Watch the 87-second launch video">
-    <img src="docs/launch.gif" alt="quantgap launch video: what it does and how to use it" width="720">
+  <a href="https://github.com/saqlain2204/quantgap/blob/main/docs/launch.mp4" title="Watch the 87-second launch video">
+    <img src="https://raw.githubusercontent.com/saqlain2204/quantgap/main/docs/launch.gif" alt="quantgap launch video: what it does and how to use it" width="720">
   </a>
   <br>
-  <sub>Click for the full <a href="docs/launch.mp4">87-second launch video</a> (1080p): what it does, how to use it, real results.</sub>
+  <sub>Click for the full <a href="https://github.com/saqlain2204/quantgap/blob/main/docs/launch.mp4">87-second launch video</a> (1080p): what it does, how to use it, real results.</sub>
 </p>
 
 ```text
@@ -32,7 +31,7 @@ from the real model, measured the same way for every publisher and every format.
 ## Quickstart
 
 ```bash
-pip install "quantgap[llamacpp]"
+pip install "quantgap[llamacpp]" --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 
 # how much did this one file lose?
 quantgap score hf://<publisher>/<model>-GGUF/<file>.gguf
@@ -40,6 +39,12 @@ quantgap score hf://<publisher>/<model>-GGUF/<file>.gguf
 # score many quants of one model, draw a chart, and get a pick for your memory
 quantgap compare --repo <publisher>/<model>-GGUF --glob "*Q4*" --budget 16GB --chart chart.svg
 ```
+
+The extra index gives pip a ready-made llama.cpp for Windows and Linux, so you do not need a C++
+compiler. **macOS:** that ready-made file is currently broken, and we have not tested GGUF scoring on a
+Mac. If you try it, build llama-cpp-python from source first
+(`CMAKE_ARGS="-DGGML_METAL=on" pip install llama-cpp-python`, needs the Xcode command line tools),
+then `pip install quantgap`, and tell us how it went.
 
 You need a **pack** for the model (the original's answers on a fixed set of texts, made once and
 shared). Pass one with `--pack`, or let quantgap look one up on the Hub. See
@@ -51,7 +56,7 @@ Model: `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0). Its pack is public at
 [quantgap-packs/Qwen2.5-0.5B-Instruct](https://huggingface.co/datasets/quantgap-packs/Qwen2.5-0.5B-Instruct),
 so `quantgap score hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf` finds it by itself. The numbers below were measured by quantgap on one
 CPU laptop, against a pack made from the original weights. Full table, hashes and settings:
-[docs/RESULTS.md](docs/RESULTS.md).
+[docs/RESULTS.md](https://github.com/saqlain2204/quantgap/blob/main/docs/RESULTS.md).
 
 | Publisher | Quant | Size | KLD mean (95% interval) | Worst 1% | Top-1 | PPL ratio | Loops (quant / original) | Wrong script | JSON ok |
 |---|---|---|---|---|---|---|---|---|---|
@@ -65,7 +70,7 @@ CPU laptop, against a pack made from the original weights. Full table, hashes an
 
 Quick mode (first 25% of each group, 12 greedy prompts), llama.cpp on CPU, one machine. Lower KLD is better. Loops are counted out of 12 prompts, so differences of one or two are noise.
 
-![quality versus size](docs/chart.svg)
+![quality versus size](https://raw.githubusercontent.com/saqlain2204/quantgap/main/docs/chart.png)
 
 **One finding worth a second look:** the two files labelled `Q4_K_M` are not the same quality. The official Qwen file (491 MB) drifted about twice as far (KLD 0.0787) as bartowski's (398 MB, KLD 0.0389), and the intervals do not overlap. We did not investigate why. A label like `Q4_K_M` names a recipe, not one fixed result, which is the point of measuring.
 
@@ -112,7 +117,7 @@ a demonstration of the tool, not a verdict on these quants.
 
 Numbers are also given for each group of texts: general, chat, code, math, multilingual
 (Hindi, Chinese, Spanish, Arabic) and JSON. The maths is explained in plain words in
-[docs/method.md](docs/method.md).
+[docs/method.md](https://github.com/saqlain2204/quantgap/blob/main/docs/method.md).
 
 ## What quantgap does not tell you
 
@@ -137,7 +142,7 @@ quantgap pack <org>/<model> --revision <full commit sha> --license <license> --p
 ```
 
 Free option: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/saqlain2204/quantgap/blob/main/notebooks/make_pack_colab.ipynb)
-runs it on a free Colab T4 GPU. Details, memory guidance and licensing rules are in [docs/packs.md](docs/packs.md).
+runs it on a free Colab T4 GPU. Details, memory guidance and licensing rules are in [docs/packs.md](https://github.com/saqlain2204/quantgap/blob/main/docs/packs.md).
 Check that the model's license allows sharing its outputs first.
 
 You fine-tuned a small model and want to know how much Q4_K_M hurts it? Make a pack for your
@@ -147,7 +152,7 @@ fine-tune, then score the GGUF against it.
 
 | Backend | For | Install | Status |
 |---|---|---|---|
-| `llamacpp` | GGUF on CPU, CUDA, Metal | `pip install "quantgap[llamacpp]"` | tested here (real GGUF files) |
+| `llamacpp` | GGUF on CPU and CUDA | `pip install "quantgap[llamacpp]" --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu` | tested on Windows and Linux with real GGUF files; **macOS and Metal not verified** |
 | `openai` | any OpenAI-compatible server that returns prompt logprobs (vLLM: NVFP4, AWQ, GPTQ, FP8) | built in, use `--base-url` | tested against a fake server that follows the vLLM docs, not a live GPU |
 | `hf` | Transformers, bitsandbytes | `pip install "quantgap[hf]"` | tested here (the reference path) |
 | `mlx` | Apple silicon | `pip install "quantgap[mlx]"` | **written but not run on a Mac yet** |
@@ -160,6 +165,9 @@ quantgap score openai://Qwen2.5-0.5B-Instruct-NVFP4 --base-url http://localhost:
 A server only reports its own top-N tokens, so those results are marked **approximate**.
 
 ## Submit a result
+
+The public leaderboard site is built and waiting. It opens when there are full results (a `--quick`
+result cannot be submitted), so yours can be one of the first.
 
 ```bash
 quantgap score ./my-quant.gguf --pack <pack>          # writes quantgap-results/<name>.json
@@ -207,7 +215,7 @@ quantgap doctor [--selftest]
 ## FAQ
 
 **Why are my numbers a bit different from llama.cpp's KLD?** quantgap keeps the top 32 guesses and
-a tail bucket, so it is a lower bound. See [docs/faq.md](docs/faq.md).
+a tail bucket, so it is a lower bound. See [docs/faq.md](https://github.com/saqlain2204/quantgap/blob/main/docs/faq.md).
 
 **Why not Ollama?** Ollama does not return the model's scores for the input text, so we cannot
 compare fairly. Score the GGUF file it downloaded instead.
@@ -218,7 +226,7 @@ compare fairly. Score the GGUF file it downloaded instead.
 **Why does it stop with a tokenizer error?** The quant must use the same token ids as the pack.
 quantgap checks and never fixes a mismatch silently.
 
-More in [docs/faq.md](docs/faq.md).
+More in [docs/faq.md](https://github.com/saqlain2204/quantgap/blob/main/docs/faq.md).
 
 ## Not yet
 
@@ -233,21 +241,21 @@ More in [docs/faq.md](docs/faq.md).
 
 ```bash
 git clone https://github.com/saqlain2204/quantgap && cd quantgap
-pip install -e ".[dev]" llama-cpp-python
+pip install -e ".[dev]" llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 python scripts/make_tiny_model.py      # tiny model + tiny GGUF for tests (also built by the tests)
 python scripts/make_video.py            # re-render docs/launch.mp4 from docs/results (needs ffmpeg)
 python -m pytest
 python -m ruff check . && python -m ruff format --check .
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add a backend and how to submit a pack.
+See [CONTRIBUTING.md](https://github.com/saqlain2204/quantgap/blob/main/CONTRIBUTING.md) for how to add a backend and how to submit a pack.
 
 ## Credits
 
 - **llama.cpp** and its `--kl-divergence` tooling are the prior art this builds on.
 - **[kld-sweep](https://github.com/cmhamiche/kld-sweep)** and **[mlx-kld](https://github.com/asher/mlx-kld)** are related work.
 - Probe texts come from Wikipedia (CC BY-SA 4.0), Dolly-15k (CC BY-SA 3.0) and GSM8K (MIT). See
-  [`SOURCES.md`](src/quantgap/probes/data/SOURCES.md).
+  [`SOURCES.md`](https://github.com/saqlain2204/quantgap/blob/main/src/quantgap/probes/data/SOURCES.md).
 
 ## License
 

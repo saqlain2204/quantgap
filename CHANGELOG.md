@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.1
+
+- README works on PyPI: absolute links and PNG images (the 0.1.0 page had broken relative links and a
+  broken chart).
+- Install command now includes the prebuilt llama.cpp index, so no C++ compiler is needed on
+  Windows or Linux: `pip install "quantgap[llamacpp]" --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu`.
+  macOS GGUF scoring is not verified (the prebuilt macOS wheel is currently broken).
+- Free GPU notebook is for Google Colab (it was Kaggle).
+- Launch video, real sample results and chart, Hugging Face viewer fix for packs.
+- The 0.1.0 source package accidentally shipped an internal planning file. 0.1.1 does not.
+
+## 0.1.0
 
 First version.
 

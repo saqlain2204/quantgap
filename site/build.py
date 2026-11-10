@@ -146,7 +146,7 @@ def render_index(tpl: Template, packs: list[PackEntry]) -> str:
     total = sum(len(p.results) for p in packs)
     body = (
         "\n".join(items)
-        or '<tr><td colspan="4">No results yet. Be the first: <code>quantgap submit</code>.</td></tr>'
+        or '<tr><td colspan="4">No results yet. The leaderboard opens with the first full results: <code>quantgap submit</code>.</td></tr>'
     )
     return tpl.substitute(
         rows=body, n_models=len(packs), n_results=total, version=_e(__version__), repo=REPO_URL,

@@ -537,7 +537,7 @@ class Terminal:
                 parts = shown.split(" ")
                 cx = x + 2 * self.cw
                 for k, w in enumerate(parts):
-                    colour = BLUE_L if w.startswith(("hf://", "--")) else INK
+                    colour = BLUE_L if w.startswith(("hf://", "--", "https://")) else INK
                     if k == 0 and w == "quantgap":
                         colour = AMBER
                     c.text(cx, y, w, self.size, colour, "mono", bg=TERM, tag=f"c{row}.{k}")
@@ -584,7 +584,13 @@ def scene_score(c, t):
     kicker_title(c, t, "USE IT", "1. Install, then score one quant")
     term = Terminal(c, 26)
     term.window(t, "terminal")
-    e1 = term.cmd(0, 'pip install "quantgap[llamacpp]"', t, 0.9, 34)
+    e1 = term.cmd(
+        0,
+        'pip install "quantgap[llamacpp]" --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu',
+        t,
+        0.9,
+        60,
+    )
     cmd2 = f"quantgap score {SCORE_CMD_URL} --quick"
     e2 = term.cmd(1, cmd2, t, e1 + 0.7, 62, cursor_end=False)
     lines = score_lines(result("bartowski", "Q4_K_M"))
@@ -855,10 +861,21 @@ def scene_end(c, t):
     wpx = c.d.textlength(pill, font=font("mono", 40)) / S + 90
     c.rrect((960 - wpx / 2, 600, 960 + wpx / 2, 690), 45, fill=PANEL2, outline=BLUE, a=a)
     c.text(960, 645, pill, 40, INK, "mono", anchor="mm", a=a, bg=PANEL2, tag="pill")
-    a = appear(t, 2.4)
+    a = appear(t, 2.0)
+    c.text(
+        960,
+        706,
+        "No C++ compiler? Add --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu",
+        24,
+        MUTED,
+        anchor="ma",
+        a=a,
+        tag="idx",
+    )
+    a = appear(t, 2.6)
     c.runs(
         960,
-        750,
+        775,
         [("GitHub  ", MUTED), ("github.com/saqlain2204/quantgap", BLUE_L)],
         36,
         "ui",
@@ -867,22 +884,14 @@ def scene_end(c, t):
     )
     c.runs(
         960,
-        810,
-        [("Leaderboard  ", MUTED), ("saqlain2204.github.io/quantgap", BLUE_L)],
-        36,
-        "ui",
-        a=a,
-        tag="lb",
-    )
-    c.runs(
-        960,
-        870,
+        830,
         [("Packs  ", MUTED), ("huggingface.co/quantgap-packs", BLUE_L)],
         36,
         "ui",
         a=a,
         tag="pk",
     )
+    c.runs(960, 885, [("Leaderboard  ", MUTED), ("opening soon", AMBER)], 36, "ui", a=a, tag="lb")
     c.text(960, 985, "Open source, Apache-2.0", 28, MUTED, anchor="ma", a=appear(t, 3.2), tag="lic")
 
 

@@ -441,7 +441,12 @@ def doctor(
         f"quantgap {__version__}  python {platform.python_version()}  {platform.system()} {platform.machine()}"
     )
     rows = [
-        ("llamacpp", "llama_cpp", 'pip install "quantgap[llamacpp]"', "GGUF files"),
+        (
+            "llamacpp",
+            "llama_cpp",
+            'pip install "quantgap[llamacpp]" --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu',
+            "GGUF files",
+        ),
         ("mlx", "mlx_lm", 'pip install "quantgap[mlx]"', "Apple silicon (MLX)"),
         ("hf", "transformers", 'pip install "quantgap[hf]"', "Transformers / bitsandbytes"),
         ("pack", "torch", 'pip install "quantgap[pack]"', "making packs"),

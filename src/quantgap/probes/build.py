@@ -30,16 +30,6 @@ GROUP_SIZES = {
 }
 GREEDY_PER_GROUP = 8
 
-EN_TITLES = [
-    "Photosynthesis", "Roman Empire", "Black hole", "Printing press", "Coral reef",
-    "Industrial Revolution", "Plate tectonics", "Jazz", "Marathon", "Honey bee",
-    "Great Wall of China", "Internet", "Volcano", "Silk Road", "Theory of relativity",
-    "Penicillin", "Mount Everest", "Renaissance", "Chess", "Antarctica",
-    "Electric car", "Tea", "Amazon rainforest", "Solar System", "DNA",
-    "Bicycle", "Olympic Games", "Glacier", "Mathematics", "Moon",
-    "Cheese", "Earthquake", "Telescope", "Bread", "Rainbow",
-    "Library", "Bridge", "Salt", "Ocean", "Clock",
-]  # fmt: skip
 LANG_CHARS = {"es": 2200, "hi": 1300, "zh": 750, "ar": 1300}
 LANG_COUNT = {"hi": 8, "zh": 8, "es": 8, "ar": 8}
 
@@ -48,41 +38,40 @@ def _get_json(client: httpx.Client, url: str, params: dict) -> dict:
     for attempt in range(4):
         r = client.get(url, params=params, headers=UA, timeout=60)
         if r.status_code == 429 or r.status_code >= 500:
-            time.sleep(2 * (attempt + 1))
+            time.sleep(3 * (attempt + 1))
             continue
         r.raise_for_status()
         return r.json()
     raise RuntimeError(f"giving up on {url} {params}")
 
 
-def _wiki_text(client: httpx.Client, lang: str, title: str) -> tuple[str, str] | None:
-    data = _get_json(
-        client,
-        f"https://{lang}.wikipedia.org/w/api.php",
-        {
-            "action": "query", "format": "json", "prop": "extracts", "explaintext": 1,
-            "exsectionformat": "plain", "titles": title, "redirects": 1,
-        },
-    )  # fmt: skip
-    page = next(iter(data["query"]["pages"].values()))
-    text = page.get("extract")
-    if not text:
+def _wiki_row(client: httpx.Client, lang: str, offset: int) -> tuple[str, str] | None:
+    """One Wikipedia article (CC BY-SA) from the wikimedia/wikipedia dataset on the Hub."""
+    try:
+        data = _get_json(
+            client,
+            "https://datasets-server.huggingface.co/rows",
+            {"dataset": "wikimedia/wikipedia", "config": f"20231101.{lang}", "split": "train",
+             "offset": offset, "length": 1},
+        )  # fmt: skip
+    except (RuntimeError, httpx.HTTPError):
+        return None  # the server can fail on some offsets; the caller just tries the next one
+    rows = data.get("rows") or []
+    if not rows:
         return None
-    return page["title"], text
+    r = rows[0]["row"]
+    return r["title"], r["text"]
 
 
-def _langlink(client: httpx.Client, title: str, lang: str) -> str | None:
-    data = _get_json(
-        client,
-        "https://en.wikipedia.org/w/api.php",
-        {
-            "action": "query", "format": "json", "prop": "langlinks", "titles": title,
-            "lllang": lang, "redirects": 1,
-        },
-    )  # fmt: skip
-    page = next(iter(data["query"]["pages"].values()))
-    links = page.get("langlinks") or []
-    return links[0]["*"] if links else None
+def _wiki_pick(client: httpx.Client, lang: str, count: int, min_chars: int, start: int, step: int):
+    """`count` articles, walking through the dataset in fixed steps (deterministic)."""
+    out, offset = [], start
+    while len(out) < count and offset < start + step * count * 6:
+        got = _wiki_row(client, lang, offset)
+        offset += step
+        if got and len(got[1]) >= min_chars:
+            out.append(got)
+    return out
 
 
 def _clip(text: str, n: int) -> str:
@@ -102,41 +91,25 @@ def _clip(text: str, n: int) -> str:
 
 def build_general(client) -> list[dict]:
     rows = []
-    for title in EN_TITLES:
-        got = _wiki_text(client, "en", title)
-        if not got:
-            continue
-        t, text = got
+    for t, text in _wiki_pick(client, "en", GROUP_SIZES["general"], 1800, start=1000, step=311):
         rows.append(
             dict(group="general", kind="text", lang="en", text=_clip(text, 2200),
                  license="CC BY-SA 4.0", source=f"wikipedia:en:{t}")
         )  # fmt: skip
-        if len(rows) == GROUP_SIZES["general"]:
-            break
     return rows
 
 
 def build_multilingual(client) -> list[dict]:
     rows = []
+    min_chars = {"es": 1800, "hi": 1000, "zh": 500, "ar": 1000}
     for li, lang in enumerate(["hi", "zh", "es", "ar"]):
-        pool = EN_TITLES[li * 7 :] + EN_TITLES[: li * 7]
-        got_n = 0
-        for en_title in pool:
-            if got_n == LANG_COUNT[lang]:
-                break
-            local = _langlink(client, en_title, lang)
-            if not local:
-                continue
-            got = _wiki_text(client, lang, local)
-            if not got or len(got[1]) < 400:
-                continue
-            t, text = got
+        for t, text in _wiki_pick(client, lang, LANG_COUNT[lang], min_chars[lang],
+                                  start=500 + li * 97, step=211):  # fmt: skip
             rows.append(
                 dict(group="multilingual", kind="text", lang=lang,
                      text=_clip(text, LANG_CHARS[lang]), license="CC BY-SA 4.0",
                      source=f"wikipedia:{lang}:{t}")
             )  # fmt: skip
-            got_n += 1
     return rows
 
 
@@ -162,33 +135,36 @@ def build_math(client) -> list[dict]:
 
 
 def build_chat(client) -> list[dict]:
-    data = _get_json(
-        client,
-        "https://datasets-server.huggingface.co/rows",
-        {"dataset": "databricks/databricks-dolly-15k", "config": "default", "split": "train",
-         "offset": 0, "length": 100},
-    )  # fmt: skip
     rows = []
-    for item in data["rows"]:
-        r = item["row"]
-        if r.get("context"):
-            continue
-        if not (250 <= len(r["response"]) <= 1500) or len(r["instruction"]) > 400:
-            continue
-        rows.append(
-            dict(group="chat", kind="chat", lang="en",
-                 messages=[{"role": "user", "content": r["instruction"].strip()},
-                           {"role": "assistant", "content": r["response"].strip()}],
-                 license="CC BY-SA 3.0", source=f"dolly-15k:{item['row_idx']}")
+    for offset in range(0, 1000, 100):
+        data = _get_json(
+            client,
+            "https://datasets-server.huggingface.co/rows",
+            {"dataset": "databricks/databricks-dolly-15k", "config": "default", "split": "train",
+             "offset": offset, "length": 100},
         )  # fmt: skip
-        if len(rows) == GROUP_SIZES["chat"]:
-            break
+        for item in data["rows"]:
+            r = item["row"]
+            if r.get("context"):
+                continue
+            if not (250 <= len(r["response"]) <= 1500) or len(r["instruction"]) > 400:
+                continue
+            rows.append(
+                dict(group="chat", kind="chat", lang="en",
+                     messages=[{"role": "user", "content": r["instruction"].strip()},
+                               {"role": "assistant", "content": r["response"].strip()}],
+                     license="CC BY-SA 3.0", source=f"dolly-15k:{item['row_idx']}")
+            )  # fmt: skip
+            if len(rows) == GROUP_SIZES["chat"]:
+                return rows
     return rows
 
 
 # Hand-written snippets in other languages (own work, Apache-2.0).
 OTHER_CODE = [
-    ("javascript", """// Debounce: run `fn` only after `ms` milliseconds of silence.
+    (
+        "javascript",
+        """// Debounce: run `fn` only after `ms` milliseconds of silence.
 function debounce(fn, ms) {
   let timer = null;
   return function (...args) {
@@ -201,8 +177,11 @@ const onResize = debounce(() => {
   console.log("window size", window.innerWidth, window.innerHeight);
 }, 200);
 window.addEventListener("resize", onResize);
-"""),
-    ("c", """#include <stdio.h>
+""",
+    ),
+    (
+        "c",
+        """#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct Node {
@@ -225,8 +204,11 @@ int main(void) {
     while (list) { Node *next = list->next; free(list); list = next; }
     return 0;
 }
-"""),
-    ("rust", """use std::collections::HashMap;
+""",
+    ),
+    (
+        "rust",
+        """use std::collections::HashMap;
 
 fn word_counts(text: &str) -> HashMap<String, usize> {
     let mut counts = HashMap::new();
@@ -247,8 +229,11 @@ fn main() {
         println!("{word}: {n}");
     }
 }
-"""),
-    ("sql", """-- Top 5 customers by total spend in 2025, with their order counts.
+""",
+    ),
+    (
+        "sql",
+        """-- Top 5 customers by total spend in 2025, with their order counts.
 SELECT c.id,
        c.name,
        COUNT(o.id)        AS orders,
@@ -262,8 +247,11 @@ GROUP BY c.id, c.name
 HAVING SUM(o.total_cents) > 0
 ORDER BY spend DESC
 LIMIT 5;
-"""),
-    ("go", """package main
+""",
+    ),
+    (
+        "go",
+        """package main
 
 import (
 	"fmt"
@@ -288,8 +276,11 @@ func main() {
 	}
 	fmt.Println("sum of squares:", sum)
 }
-"""),
-    ("bash", """#!/usr/bin/env bash
+""",
+    ),
+    (
+        "bash",
+        """#!/usr/bin/env bash
 set -euo pipefail
 
 # Keep only the newest N backups in a folder.
@@ -303,7 +294,8 @@ if (( ${#files[@]} > keep )); then
     rm -- "$f"
   done
 fi
-"""),
+""",
+    ),
 ]
 
 
@@ -321,7 +313,9 @@ def _python_chunks(src_root: Path, n: int) -> list[tuple[str, str]]:
         cur = ""
         for b in blocks:
             if len(cur) + len(b) > 1800 and len(cur) > 600:
-                chunks.append((f"quantgap:{p.relative_to(src_root).as_posix()}", cur.strip() + "\n"))
+                chunks.append(
+                    (f"quantgap:{p.relative_to(src_root).as_posix()}", cur.strip() + "\n")
+                )
                 cur = ""
             cur += b + "\n\n\n"
         if len(cur) > 600:
@@ -362,31 +356,65 @@ def build_json() -> list[dict]:
         name, city, item = _NAMES[i], _CITIES[i], _ITEMS[i]
         kind = i % 4
         if kind == 0:
-            instr = (f"Return a JSON object describing the person {name} who lives in {city}. "
-                     "Use the keys name, city, age and hobbies. Output only the JSON.")
-            obj = {"name": name, "city": city, "age": rng.randint(19, 64),
-                   "hobbies": rng.sample(["chess", "cycling", "cooking", "painting", "hiking"], 2)}
+            instr = (
+                f"Return a JSON object describing the person {name} who lives in {city}. "
+                "Use the keys name, city, age and hobbies. Output only the JSON."
+            )
+            obj = {
+                "name": name,
+                "city": city,
+                "age": rng.randint(19, 64),
+                "hobbies": rng.sample(["chess", "cycling", "cooking", "painting", "hiking"], 2),
+            }
         elif kind == 1:
-            instr = (f"Return a JSON object for an order of one {item} shipped to {city}. "
-                     "Use the keys order_id, item, quantity, price and shipping. Output only the JSON.")
-            obj = {"order_id": f"A-{rng.randint(1000, 9999)}", "item": item,
-                   "quantity": rng.randint(1, 4), "price": round(rng.uniform(5, 90), 2),
-                   "shipping": {"city": city, "express": bool(rng.getrandbits(1))}}
+            instr = (
+                f"Return a JSON object for an order of one {item} shipped to {city}. "
+                "Use the keys order_id, item, quantity, price and shipping. Output only the JSON."
+            )
+            obj = {
+                "order_id": f"A-{rng.randint(1000, 9999)}",
+                "item": item,
+                "quantity": rng.randint(1, 4),
+                "price": round(rng.uniform(5, 90), 2),
+                "shipping": {"city": city, "express": bool(rng.getrandbits(1))},
+            }
         elif kind == 2:
-            instr = (f"Return a JSON object with a list of three tasks for {name}. Each task has "
-                     "the keys title, done and priority. Output only the JSON.")
-            obj = {"owner": name, "tasks": [
-                {"title": t, "done": bool(rng.getrandbits(1)), "priority": rng.randint(1, 3)}
-                for t in rng.sample(["write report", "book tickets", "call plumber", "buy milk",
-                                     "fix bike", "renew passport"], 3)]}
+            instr = (
+                f"Return a JSON object with a list of three tasks for {name}. Each task has "
+                "the keys title, done and priority. Output only the JSON."
+            )
+            obj = {
+                "owner": name,
+                "tasks": [
+                    {"title": t, "done": bool(rng.getrandbits(1)), "priority": rng.randint(1, 3)}
+                    for t in rng.sample(
+                        [
+                            "write report",
+                            "book tickets",
+                            "call plumber",
+                            "buy milk",
+                            "fix bike",
+                            "renew passport",
+                        ],
+                        3,
+                    )
+                ],
+            }
         else:
-            instr = (f"Return a JSON object for the weather in {city} with the keys city, "
-                     "temperature_c, conditions and wind. wind has speed_kmh and direction. "
-                     "Output only the JSON.")
-            obj = {"city": city, "temperature_c": rng.randint(-5, 38),
-                   "conditions": rng.choice(["sunny", "cloudy", "rain", "fog"]),
-                   "wind": {"speed_kmh": rng.randint(0, 40),
-                            "direction": rng.choice(["N", "NE", "E", "SE", "S", "SW", "W", "NW"])}}
+            instr = (
+                f"Return a JSON object for the weather in {city} with the keys city, "
+                "temperature_c, conditions and wind. wind has speed_kmh and direction. "
+                "Output only the JSON."
+            )
+            obj = {
+                "city": city,
+                "temperature_c": rng.randint(-5, 38),
+                "conditions": rng.choice(["sunny", "cloudy", "rain", "fog"]),
+                "wind": {
+                    "speed_kmh": rng.randint(0, 40),
+                    "direction": rng.choice(["N", "NE", "E", "SE", "S", "SW", "W", "NW"]),
+                },
+            }
         text = instr + "\n" + json.dumps(obj, indent=2)
         rows.append(
             dict(group="json", kind="text", lang="en", text=text, license="CC0-1.0",
@@ -431,7 +459,9 @@ def write(rows: list[dict], out: Path) -> None:
     summary: dict[tuple[str, str, str], int] = {}
     for r in rows:
         src = r["source"].split(":")[0]
-        summary[(r["group"], src, r["license"])] = summary.get((r["group"], src, r["license"]), 0) + 1
+        summary[(r["group"], src, r["license"])] = (
+            summary.get((r["group"], src, r["license"]), 0) + 1
+        )
     for (g, s, lic), n in summary.items():
         lines.append(f"| {g} | {s} | {lic} | {n} |")
     lines += ["", "Wikipedia text is CC BY-SA 4.0 (author credit: the article editors, see the page "

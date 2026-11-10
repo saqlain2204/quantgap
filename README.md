@@ -68,7 +68,7 @@ a demonstration of the tool, not a verdict on these quants.
 ## How it works
 
 ```
-        (once per model: big machine, Kaggle, or HF Jobs)
+        (once per model: big machine, Colab, or HF Jobs)
  original model ──► quantgap pack ──► pack (small files) ──► Hugging Face Hub
                                                                   │
         (you, on your own laptop)                                 ▼
@@ -128,8 +128,8 @@ pip install "quantgap[pack]"
 quantgap pack <org>/<model> --revision <full commit sha> --license <license> --push <you>/<name>
 ```
 
-Free option: [`notebooks/make_pack_kaggle.ipynb`](notebooks/make_pack_kaggle.ipynb) runs it on a
-Kaggle T4 x2. Details, memory guidance and licensing rules are in [docs/packs.md](docs/packs.md).
+Free option: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/saqlain2204/quantgap/blob/main/notebooks/make_pack_colab.ipynb)
+runs it on a free Colab T4 GPU. Details, memory guidance and licensing rules are in [docs/packs.md](docs/packs.md).
 Check that the model's license allows sharing its outputs first.
 
 You fine-tuned a small model and want to know how much Q4_K_M hurts it? Make a pack for your

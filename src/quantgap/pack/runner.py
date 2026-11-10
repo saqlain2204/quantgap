@@ -242,7 +242,7 @@ def load_reference(
     dtype_key = "dtype" if major_minor >= (4, 56) else "torch_dtype"
     kwargs: dict[str, Any] = {"revision": revision, dtype_key: dtype}
     if use_cuda and torch.cuda.device_count() > 1:
-        kwargs["device_map"] = "auto"  # spread across GPUs (Kaggle T4 x2), offload if needed
+        kwargs["device_map"] = "auto"  # spread across GPUs, offload to CPU if needed
     model = AutoModelForCausalLM.from_pretrained(repo, **kwargs)
     if "device_map" in kwargs:
         dev = next(model.parameters()).device

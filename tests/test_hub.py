@@ -126,3 +126,14 @@ def test_auto_find_pack_exact_then_family(monkeypatch):
         hp.auto_find_pack("mistralai/Mistral-7B", Settings())
     with pytest.raises(hp.PackNotFound, match="does not say"):
         hp.auto_find_pack(None, Settings())
+
+
+def test_dataset_card_declares_one_config_per_parquet_kind():
+    """The Hub viewer fails if differently shaped parquet files share one config."""
+    import yaml
+
+    from quantgap.hub.packs import dataset_card
+
+    front = dataset_card(_manifest("a/b")).split("---")[1]
+    cfg = {c["config_name"]: c["data_files"] for c in yaml.safe_load(front)["configs"]}
+    assert cfg == {"topk": "topk-*.parquet", "probes": "probes.parquet", "greedy": "greedy.parquet"}

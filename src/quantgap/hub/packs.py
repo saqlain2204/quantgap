@@ -113,6 +113,14 @@ tags:
 - {PACK_TAG}
 - quantization
 pretty_name: quantgap pack for {m.model.repo}
+configs:
+- config_name: topk
+  data_files: "topk-*.parquet"
+  default: true
+- config_name: probes
+  data_files: probes.parquet
+- config_name: greedy
+  data_files: greedy.parquet
 ---
 
 # quantgap pack: {m.model.repo}

@@ -31,18 +31,23 @@ The MVP targets models up to about 32B parameters. Rough guide for memory:
 | Model size | Memory for the reference run |
 |---|---|
 | up to 3B | CPU is fine, but slow (the 0.5B example below took minutes, not hours) |
-| 7B to 14B | a 24 GB GPU, or a Kaggle T4 x2 (32 GB) with `device_map="auto"` |
-| 27B to 32B | Kaggle T4 x2 with CPU offload: works, but slow |
+| 3B to 7B | a free Colab T4 (16 GB) is tight; a 24 GB GPU is comfortable |
+| 7B to 14B | a 24 GB or bigger GPU |
+| 27B to 32B | a 48 GB or bigger GPU, or several GPUs (`device_map="auto"` spreads layers) with CPU offload: works, but slow |
 
 These are estimates, not measurements. Real timings will be added once more packs exist.
 The `bfloat16` weights have to fit in GPU memory (plus a few GB), or `accelerate` offloads layers
 to CPU.
 
-## Kaggle (free GPU)
+## Google Colab (free GPU)
 
-`notebooks/make_pack_kaggle.ipynb` installs quantgap, runs `quantgap pack`, and uploads the
-result. Turn on GPU T4 x2 and Internet in the notebook settings, and add `HF_TOKEN` as a Kaggle
-secret.
+`notebooks/make_pack_colab.ipynb` installs quantgap, runs `quantgap pack`, and can upload the
+result. Open it with the "Open in Colab" button in the README, set **Runtime > Change runtime
+type > T4 GPU**, and add `HF_TOKEN` as a Colab secret if you want to upload.
+
+The free T4 has 16 GB of GPU memory and about 12 GB of CPU memory, so it suits models up to about
+3B parameters. The T4 has no native bfloat16 (it is emulated, so slower). Colab sessions end
+after a while: download or upload the pack before you close the tab.
 
 ## Licensing: read this before you upload
 

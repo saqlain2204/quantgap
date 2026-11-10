@@ -6,6 +6,8 @@
 
 <p align="center">
   <a href="https://github.com/saqlain2204/quantgap/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/saqlain2204/quantgap/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://huggingface.co/quantgap-packs"><img alt="Packs on Hugging Face" src="https://img.shields.io/badge/packs-Hugging%20Face-f59e0b"></a>
+  <a href="https://saqlain2204.github.io/quantgap/"><img alt="Leaderboard" src="https://img.shields.io/badge/leaderboard-site-f59e0b"></a>
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3b82f6">
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-3b82f6"></a>
 </p>

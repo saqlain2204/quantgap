@@ -13,6 +13,7 @@ from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 
 from quantgap import __version__
@@ -50,7 +51,7 @@ OLLAMA_HINT = (
 
 
 def _fail(msg: str, code: int = 1) -> typer.Exit:
-    err.print(f"[red]error:[/red] {msg}")
+    err.print(f"[red]error:[/red] {escape(msg)}")
     return typer.Exit(code)
 
 
@@ -450,7 +451,7 @@ def doctor(
         ok = importlib.util.find_spec(mod) is not None
         console.print(
             f"  {'[green]ok[/green]     ' if ok else '[yellow]missing[/yellow]'} {name:9} {what}"
-            + ("" if ok else f"   -> {fix}")
+            + ("" if ok else f"   -> {escape(fix)}")
         )
         missing += [] if ok else [fix]
     console.print(

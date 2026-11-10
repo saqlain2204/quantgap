@@ -31,6 +31,14 @@ def expand(entry: str | dict) -> list[str]:
     return [f"hf://{entry['repo']}/{f}" for f in expand_glob(entry["repo"], entry["glob"])]
 
 
+def result_name(quant: str) -> str:
+    """One file per quant. The publisher is part of the name: two publishers often ship files whose
+    names differ only in letter case (Q4_K_M), which would collide on Windows and macOS."""
+    parts = quant.removeprefix("hf://").split("/")
+    org = parts[0] if quant.startswith("hf://") and len(parts) > 2 else "local"
+    return f"{org}__{Path(quant).stem}.json".lower()
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("seed_list", type=Path)
@@ -46,7 +54,7 @@ def main() -> int:
         name = Path(p["pack"]).name
         quants = [q for entry in p["quants"] for q in expand(entry)]
         for q in quants:
-            out = a.out / name / (Path(q).stem + ".json")
+            out = a.out / name / result_name(q)
             if out.exists():
                 print(f"skip (done): {q}")
                 continue
@@ -69,7 +77,7 @@ def main() -> int:
             if subprocess.run(cmd).returncode != 0:
                 failures += 1
                 print(f"FAILED: {q}", file=sys.stderr)
-        results = sorted((a.out / name).glob("*.json"))
+        results = sorted(f for f in (a.out / name).glob("*.json") if f.name != "report.json")
         if results:
             subprocess.run(
                 [sys.executable, "-m", "quantgap.cli", "compare", *map(str, results),

@@ -23,7 +23,23 @@ def test_t18_every_command_help_exits_zero(cmd):
 def test_t18_doctor_runs_and_names_extras():
     r = runner.invoke(app, ["doctor"])
     assert r.exit_code == 0
-    assert "llamacpp" in r.output and "quantgap[" in r.output or "ok" in r.output
+    out = " ".join(r.output.split())
+    # The extras must be printed literally (Rich would swallow "[llamacpp]" as markup).
+    assert 'pip install "quantgap[llamacpp]"' in out or "ok llamacpp" in out
+
+
+def test_error_messages_keep_square_brackets(monkeypatch):
+    import importlib.util
+
+    real = importlib.util.find_spec
+    monkeypatch.setattr(
+        importlib.util,
+        "find_spec",
+        lambda name, *a, **k: None if name == "torch" else real(name, *a, **k),
+    )
+    r = runner.invoke(app, ["pack", "x/y"])
+    assert r.exit_code == 1
+    assert 'pip install "quantgap[pack]"' in " ".join(r.output.split())
 
 
 def test_version():

@@ -59,8 +59,12 @@ def draw_chart(
         color=MARK, linewidth=1.5, alpha=0.5, zorder=2,
     )  # fmt: skip
     ax.scatter(xs, ys, s=64, color=MARK, edgecolor=SURFACE, linewidth=2, zorder=3)
+    labels = [r.quant.label for r in rs]
     for r, x, y in zip(rs, xs, ys, strict=True):
-        label = r.quant.label + (" *" if r.approximate else "")
+        label = r.quant.label
+        if labels.count(r.quant.label) > 1 and r.quant.publisher:  # same label from two publishers
+            label += f" ({r.quant.publisher})"
+        label += " *" if r.approximate else ""
         ax.annotate(label, (x, y), textcoords="offset points", xytext=(7, 6), fontsize=8, color=INK)
     if budget_bytes:
         ax.axvline(budget_bytes / 1e9, color=MUTED, linewidth=1, linestyle=(0, (4, 3)))

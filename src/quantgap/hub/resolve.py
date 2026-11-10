@@ -43,7 +43,7 @@ def parse_hf_url(url: str) -> HFRef:
 def label_from_filename(name: str) -> str:
     stem = Path(name).stem
     m = _LABEL_RE.search(stem)
-    return m.group(1) if m else stem
+    return m.group(1).upper() if m else stem
 
 
 def expand_glob(repo: str, pattern: str, files: list[str] | None = None) -> list[str]:

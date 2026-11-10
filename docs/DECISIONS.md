@@ -50,6 +50,21 @@ so the layout matches the other damage numbers.
 **Loop and wrong-script rates are counts out of the prompts run.** Quick mode runs 2 prompts per
 group instead of 8.
 
+**Greedy generation is plain greedy on every backend.** Found on the first real run: Qwen's
+`generation_config.json` sets `repetition_penalty` (1.05 to 1.1) and sampling, and Transformers
+applies it even with `do_sample=False`. quantgap forces `repetition_penalty=1.0` for the reference
+and for the hf and llama.cpp backends, and stops on every EOS id in the model's generation config
+(Qwen has two). Without this the reference text is not plain greedy and the damage numbers are
+meaningless. A test (`test_greedy_ignores_generation_config_sampling_settings`) guards it.
+
+**The fine-tune warning compares model names loosely.** GGUF files often write the *parent* of an
+instruct model as `base_model` (Qwen2.5-0.5B for Qwen2.5-0.5B-Instruct). If one repo name starts
+with the other we treat them as the same family and do not warn.
+
+**The "probabilities raised to 1e-12" warning needs more than 1% of positions.** A few dozen
+floors in tens of thousands of positions is normal for peaked distributions, and does not move
+the KLD, because the reference's own probability there is tiny.
+
 ## Probe set
 
 **Probe set v1 has 160 rows, but not exactly 6 equal groups.** general 30, chat 30, code 28, math
@@ -98,13 +113,3 @@ must pass `--pack`.
 
 **No telemetry.** Nothing is ever sent anywhere except to the Hugging Face Hub (downloads, and
 uploads you ask for) and the server you point `--base-url` at.
-
-## Not done yet (honest list)
-
-- The Hugging Face organisations `quantgap-packs` and `quantgap` are not created by this repo. Until
-  they exist, `packs list`, automatic pack lookup and `submit` need `--pack` / `--results-repo`
-  pointing at something you own.
-- No seeded packs or leaderboard at the spec's launch size (4 packs, 40+ results). One real pack
-  and a handful of results are in `docs/RESULTS.md`, made on one CPU machine.
-- MLX adapter and a live vLLM server are untested (see above).
-- Split GGUF files, Docker image publishing and PyPI publishing have not been exercised.

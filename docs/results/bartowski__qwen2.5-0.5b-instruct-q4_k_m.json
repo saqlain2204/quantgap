@@ -1,0 +1,88 @@
+{
+  "schema": "quantgap.result/1",
+  "pack_id": "f499c4436fa8e370",
+  "pack_name": "Qwen2.5-0.5B-Instruct@f499c4436fa8e370",
+  "quant": {
+    "source": "hf://bartowski/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+    "sha256": "6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653",
+    "size_bytes": 397808192,
+    "label": "Q4_K_M",
+    "publisher": "bartowski",
+    "format": "gguf"
+  },
+  "backend": {
+    "name": "llamacpp",
+    "version": "llama-cpp-python 0.3.36",
+    "settings": {
+      "ctx": 2048,
+      "n_gpu_layers": 0
+    }
+  },
+  "metrics": {
+    "kld_mean": 0.038916818,
+    "kld_mean_ci95": [
+      0.0315529817,
+      0.0478116471
+    ],
+    "kld_p99": 0.375609974,
+    "kld_p999": 2.20271275,
+    "top1_agree": 0.899266177,
+    "ppl_ratio": 1.04119532,
+    "n_positions": 10493,
+    "n_sequences": 41,
+    "clamp_count": 85,
+    "by_group": {
+      "general": {
+        "kld_mean": 0.0196501421,
+        "top1_agree": 0.914154465,
+        "n_positions": 3483
+      },
+      "chat": {
+        "kld_mean": 0.0207389184,
+        "top1_agree": 0.902413431,
+        "n_positions": 953
+      },
+      "code": {
+        "kld_mean": 0.0216467652,
+        "top1_agree": 0.933150183,
+        "n_positions": 1092
+      },
+      "math": {
+        "kld_mean": 0.12725761,
+        "top1_agree": 0.927419355,
+        "n_positions": 868
+      },
+      "multilingual": {
+        "kld_mean": 0.0473422218,
+        "top1_agree": 0.865056445,
+        "n_positions": 3809
+      },
+      "json": {
+        "kld_mean": 0.0198754914,
+        "top1_agree": 0.947916667,
+        "n_positions": 288
+      }
+    },
+    "damage": {
+      "n_prompts": 12,
+      "loops": 6,
+      "loops_ref": 6,
+      "loop_rate": 0.5,
+      "wrong_script": 0,
+      "wrong_script_ref": 0,
+      "wrong_script_rate": 0.0,
+      "json_valid": 2,
+      "json_valid_ref": 2,
+      "json_n": 2,
+      "json_valid_rate": 1.0,
+      "first_divergence_median": 23.0
+    }
+  },
+  "hardware": "Intel64 Family 6 Model 142 Stepping 10, GenuineIntel (Windows)",
+  "quantgap": "0.1.0",
+  "created_at": "2026-11-10T10:49:37Z",
+  "quick": true,
+  "approximate": false,
+  "nondeterministic": false,
+  "warnings": []
+}

@@ -18,6 +18,8 @@ jobs:
           python-version: "3.12"
       - run: pip install build && python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true # re-running a tag whose version is already on PyPI must not fail
       - name: GitHub release with changelog
         uses: softprops/action-gh-release@v2
         with:

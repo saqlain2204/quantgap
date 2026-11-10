@@ -46,9 +46,7 @@ class _SeqScore:
     lp_target: np.ndarray
 
 
-def select_sequences(
-    pack: Pack, groups: list[str] | None, quick: bool
-) -> list[int]:
+def select_sequences(pack: Pack, groups: list[str] | None, quick: bool) -> list[int]:
     """Sequence ids to score. --groups filters; --quick keeps the first 25% of each group."""
     rows = pack.probes()
     by_group: dict[str, list[int]] = {}
@@ -63,7 +61,9 @@ def select_sequences(
             ids = ids[: max(1, math.ceil(len(ids) * QUICK_FRACTION))]
         chosen += ids
     if not chosen:
-        raise ScoreError(f"No sequences match --groups {groups}. Groups in this pack: {sorted(by_group)}.")
+        raise ScoreError(
+            f"No sequences match --groups {groups}. Groups in this pack: {sorted(by_group)}."
+        )
     return chosen
 
 
@@ -156,8 +156,8 @@ def score_quant(
     # E6: run the first sequence twice and see if the numbers move.
     nondeterministic = False
     first = next(s for s in seq_ids if len(topk[s].pos))
-    a = backend.prompt_logprobs(list(probes[first].token_ids), topk[first].pos, topk[first].ids)
-    b = backend.prompt_logprobs(list(probes[first].token_ids), topk[first].pos, topk[first].ids)
+    a = backend.prompt_logprobs(probes[first].token_ids.tolist(), topk[first].pos, topk[first].ids)
+    b = backend.prompt_logprobs(probes[first].token_ids.tolist(), topk[first].pos, topk[first].ids)
     both = ~np.isnan(a.gathered) & ~np.isnan(b.gathered)
     if both.any() and np.max(np.abs(a.gathered[both] - b.gathered[both])) > NONDETERMINISM_TOL:
         nondeterministic = True
@@ -172,7 +172,7 @@ def score_quant(
         t = topk[sid]
         if len(t.pos) == 0:
             continue
-        pl = backend.prompt_logprobs(list(probes[sid].token_ids), t.pos, t.ids)
+        pl = backend.prompt_logprobs(probes[sid].token_ids.tolist(), t.pos, t.ids)
         approximate |= pl.approximate
         res = kld_topk(t.logp, pl.gathered)
         clamps += res.clamps
@@ -246,7 +246,9 @@ def score_quant(
             publisher=source.publisher,
             format=source.format,
         ),
-        backend=BackendInfo(name=backend.name, version=backend.version(), settings=settings.public()),
+        backend=BackendInfo(
+            name=backend.name, version=backend.version(), settings=settings.public()
+        ),
         metrics=metrics,
         hardware=hardware_string(),
         quantgap=__version__,

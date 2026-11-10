@@ -25,7 +25,9 @@ def test_chat_mask_only_scores_assistant_reply(tiny_hf, mini_probes_file):
     seqs, _ = render_probes(probes, tok, max_len=200)
     s = seqs[0]
     first_scored = s.score_mask.index(True)
-    prompt = tok.apply_chat_template(probes[0].messages[:-1], add_generation_prompt=True, tokenize=False)
+    prompt = tok.apply_chat_template(
+        probes[0].messages[:-1], add_generation_prompt=True, tokenize=False
+    )
     assert first_scored >= len(tok(prompt, add_special_tokens=False)["input_ids"])
 
 

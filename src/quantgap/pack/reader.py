@@ -118,7 +118,13 @@ class Pack:
             for s in np.unique(seq):
                 m = seq == s
                 parts.setdefault(int(s), []).append(
-                    {"pos": pos[m], "target": target[m], "ids": ids[m], "logp": logp[m], "lpt": lpt[m]}
+                    {
+                        "pos": pos[m],
+                        "target": target[m],
+                        "ids": ids[m],
+                        "logp": logp[m],
+                        "lpt": lpt[m],
+                    }
                 )
         out: dict[int, SeqTopK] = {}
         for s, chunks in parts.items():

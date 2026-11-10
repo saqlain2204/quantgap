@@ -13,7 +13,9 @@ AVAILABLE = {"v1": "probes_v1.jsonl"}
 
 def probes_path(version: str = "v1") -> Path:
     if version not in AVAILABLE:
-        raise ValueError(f"Unknown probe set {version!r}. Available: {', '.join(sorted(AVAILABLE))}.")
+        raise ValueError(
+            f"Unknown probe set {version!r}. Available: {', '.join(sorted(AVAILABLE))}."
+        )
     return _DATA / AVAILABLE[version]
 
 

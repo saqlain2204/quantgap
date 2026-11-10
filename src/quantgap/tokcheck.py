@@ -45,7 +45,9 @@ def check_tokenizer(pack_tok: TokenizerInfo, quant: TokFingerprint, pack_top_ids
                 f"pack expects {pack_tok.vocab_size}."
             )
         if pack_top_ids_max >= pack_tok.vocab_size:  # pragma: no cover - defensive
-            raise TokenizerMismatch("Check 1 (vocab size) failed: pack ids exceed its own vocabulary.")
+            raise TokenizerMismatch(
+                "Check 1 (vocab size) failed: pack ids exceed its own vocabulary."
+            )
         # extra padding ids are fine: no pack id points at them.
     # 2. fixed check string
     if pack_tok.check_ids and quant.check_ids != pack_tok.check_ids:

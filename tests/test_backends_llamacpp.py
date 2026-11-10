@@ -10,7 +10,9 @@ from quantgap.score.run import ScoreError, score_quant  # noqa: E402
 def _score(pack, path, **kw):
     b = LlamaCppBackend()
     s = BackendSettings(ctx=kw.pop("ctx", 2048), n_gpu_layers=0)
-    src = ResolvedSource(source=str(path), label=path.stem, path=path, size_bytes=path.stat().st_size)
+    src = ResolvedSource(
+        source=str(path), label=path.stem, path=path, size_bytes=path.stat().st_size
+    )
     b.load(src, s)
     try:
         return score_quant(pack, b, src, s, **kw)

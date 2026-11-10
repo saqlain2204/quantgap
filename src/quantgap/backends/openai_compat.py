@@ -43,7 +43,9 @@ class OpenAIBackend:
     # ------------------------------------------------------------------ setup
     def load(self, source: ResolvedSource, settings: BackendSettings) -> None:
         if not settings.base_url:
-            raise ValueError("The openai backend needs --base-url (for example http://localhost:8000/v1).")
+            raise ValueError(
+                "The openai backend needs --base-url (for example http://localhost:8000/v1)."
+            )
         self.base_url = settings.base_url.rstrip("/")
         self.model_name = settings.model_name or source.extra.get("model_name") or ""
         if not self.model_name:
@@ -100,7 +102,9 @@ class OpenAIBackend:
                 if v is not None:
                     gathered[row, j] = v["logprob"]
         if np.isnan(target).any():  # defensive: server must always include the actual token
-            raise RuntimeError("Server did not return the log probability of the actual next token.")
+            raise RuntimeError(
+                "Server did not return the log probability of the actual next token."
+            )
         return PromptLogprobs(gathered, target, top1, approximate=bool(np.isnan(gathered).any()))
 
     def _request_prompt_logprobs(self, token_ids: list[int]) -> list[dict | None]:

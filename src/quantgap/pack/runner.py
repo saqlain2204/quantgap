@@ -198,7 +198,9 @@ def _probes_hash(version: str, path: Path | None) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def load_reference(repo: str, revision: str | None, device: str = "auto") -> tuple[Any, Any, Any, str, str]:
+def load_reference(
+    repo: str, revision: str | None, device: str = "auto"
+) -> tuple[Any, Any, Any, str, str]:
     """Load the reference model. Returns (model, tokenizer, device, dtype_name, device_label)."""
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer

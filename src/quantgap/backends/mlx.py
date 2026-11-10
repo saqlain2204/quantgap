@@ -8,6 +8,7 @@ if anything fails.
 
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 import numpy as np
@@ -43,10 +44,8 @@ class MLXBackend:
         t = self._hf_tok()
         ids = list(t(CHECK_STRING, add_special_tokens=False)["input_ids"])
         vocab = len(t)
-        try:  # the real embedding size is what matters for padding ids
+        with contextlib.suppress(Exception):  # the real embedding size is what matters for padding
             vocab = int(self.model.model.embed_tokens.weight.shape[0])
-        except Exception:
-            pass
         return TokFingerprint(vocab, t.bos_token_id, t.eos_token_id, ids)
 
     def prompt_logprobs(

@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+quantgap-results/
+tests/fixtures/tiny_model/
+tests/fixtures/tiny_pack/
+*.gguf
+site/dist/
+.env
+.DS_Store

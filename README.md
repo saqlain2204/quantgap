@@ -14,6 +14,14 @@
 
 **quantgap measures how far a quantized model drifts from the original, on your own machine, without running the original.**
 
+<p align="center">
+  <a href="docs/launch.mp4" title="Watch the 87-second launch video">
+    <img src="docs/launch.gif" alt="quantgap launch video: what it does and how to use it" width="720">
+  </a>
+  <br>
+  <sub>Click for the full <a href="docs/launch.mp4">87-second launch video</a> (1080p): what it does, how to use it, real results.</sub>
+</p>
+
 ```text
 Which quant should I download?   Q4_K_M?  UD-Q4_K_XL?  IQ3_XXS?  NVFP4?
 ```
@@ -227,6 +235,7 @@ More in [docs/faq.md](docs/faq.md).
 git clone https://github.com/saqlain2204/quantgap && cd quantgap
 pip install -e ".[dev]" llama-cpp-python
 python scripts/make_tiny_model.py      # tiny model + tiny GGUF for tests (also built by the tests)
+python scripts/make_video.py            # re-render docs/launch.mp4 from docs/results (needs ffmpeg)
 python -m pytest
 python -m ruff check . && python -m ruff format --check .
 ```

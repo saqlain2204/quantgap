@@ -14,3 +14,4 @@ site/dist/
 .env
 .DS_Store
 packs/
+assets/_preview/

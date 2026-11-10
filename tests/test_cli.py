@@ -98,5 +98,8 @@ def test_score_and_compare_end_to_end(
 
 
 def test_selftest_flag_exists():
+    import re
+
     r = runner.invoke(app, ["doctor", "--help"])
-    assert "--selftest" in r.output
+    plain = re.sub(r"\[[0-9;]*m", "", r.output)  # CI forces colour, which splits option names
+    assert "--selftest" in plain

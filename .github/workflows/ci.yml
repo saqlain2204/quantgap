@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: pip
-      - name: CPU-only torch (Linux: much smaller download)
+      - name: CPU-only torch on Linux (much smaller download)
         if: runner.os == 'Linux'
         run: pip install --retries 5 torch --index-url https://download.pytorch.org/whl/cpu
       - name: Install (dev tools, llama.cpp wheel)

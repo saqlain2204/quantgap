@@ -1,0 +1,38 @@
+:root {
+  --ink: #1f2937; --muted: #6b7280; --grid: #e5e7eb; --mark: #2563eb; --bg: #ffffff;
+  --flag: #b45309; --panel: #f8fafc;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #e5e7eb; --muted: #9ca3af; --grid: #2b3340; --mark: #60a5fa; --bg: #0f1720;
+          --flag: #fbbf24; --panel: #151f2b; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+       font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px;
+         border-bottom: 1px solid var(--grid); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem;
+         color: var(--ink); text-decoration: none; }
+nav a { margin-left: 18px; color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--mark); }
+main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 1.9rem; margin: 0.4em 0 0.2em; }
+.lead { font-size: 1.1rem; max-width: 62ch; }
+.meta, .note, figcaption, footer { color: var(--muted); font-size: 0.9rem; }
+footer { text-align: center; padding: 28px 24px 40px; border-top: 1px solid var(--grid); margin-top: 40px; }
+table.plain { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.plain th, .plain td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+.plain th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.sortable th { cursor: pointer; user-select: none; }
+.sortable th[aria-sort="ascending"]::after { content: " \25B2"; }
+.sortable th[aria-sort="descending"]::after { content: " \25BC"; }
+.sortable th:hover, .sortable th:focus-visible { color: var(--mark); outline: none; }
+.scroll { overflow-x: auto; }
+.approx { color: var(--flag); font-size: 0.7rem; border: 1px solid var(--flag); border-radius: 4px;
+          padding: 0 4px; text-decoration: none; }
+a { color: var(--mark); }
+code { background: var(--panel); padding: 1px 5px; border-radius: 4px; font-size: 0.88em; }
+figure { margin: 18px 0; padding: 12px; background: var(--panel); border-radius: 10px; }
+figure svg { width: 100%; height: auto; display: block; }
+#tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); padding: 6px 9px;
+       border-radius: 6px; font-size: 0.8rem; display: none; z-index: 10; }

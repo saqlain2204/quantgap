@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>quantgap leaderboard: how much did each quant lose?</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html"><img src="logo.svg" alt="" width="36" height="36"> quantgap</a>
+  <nav><a href="$repo">GitHub</a></nav>
+</header>
+<main>
+  <h1>How much did each quant lose?</h1>
+  <p class="lead">Every number here is the drift (KLD) of a quantized model from the original, measured
+  the same way for every publisher and format. Lower is better. Each result carries the hash of the
+  quant file and the pack, so anyone can re-run it.</p>
+  <p class="meta">$n_models model(s), $n_results result(s). Built $generated with quantgap $version.</p>
+  <table class="plain">
+    <thead><tr><th>Model</th><th>Results</th><th>Lowest KLD</th><th>Pack</th></tr></thead>
+    <tbody>
+$rows
+    </tbody>
+  </table>
+  <h2>What is KLD?</h2>
+  <p>At every word position, the original model gives a probability to each possible next token. KLD
+  says how far the quant's probabilities are from those. 0 means identical. We compute it on the
+  reference's top 32 guesses plus one "everything else" bucket, so it is a lower bound of the true
+  KLD. Good for ranking quants, not for comparing with other tools' absolute numbers.</p>
+</main>
+<footer>quantgap is Apache-2.0. Results are CC BY 4.0. This is not a skill benchmark and not a speed benchmark.</footer>
+</body>
+</html>

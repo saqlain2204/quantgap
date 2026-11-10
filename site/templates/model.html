@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$title quants | quantgap</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html"><img src="logo.svg" alt="" width="36" height="36"> quantgap</a>
+  <nav><a href="index.html">All models</a><a href="$repo">GitHub</a></nav>
+</header>
+<main>
+  <h1>$title</h1>
+  <p class="meta">pack <code>$pack_name</code> (id <code>$pack_id</code>), $n result(s). Lower KLD is better.
+  Click a column to sort.</p>
+  <figure>
+    <div id="chart" role="img" aria-label="Quality versus size chart. The same numbers are in the table below."></div>
+    <figcaption>KLD mean against file size. Bars are 95% intervals. Lower and further left is better.</figcaption>
+  </figure>
+  <div class="scroll">
+  <table id="results" class="plain sortable">
+    <thead><tr>$head</tr></thead>
+    <tbody>
+$rows
+    </tbody>
+  </table>
+  </div>
+  <p class="note"><abbr class="approx">approx</abbr> = the server only reported its own top-N, so some reference tokens were counted in the tail bucket.
+  <abbr class="approx">nd</abbr> = the same text gave slightly different numbers on two runs.
+  "Loops" shows quant / original. All results used the same probe set and pack.</p>
+</main>
+<footer>quantgap $version. Apache-2.0 code, CC BY 4.0 results.</footer>
+<script type="application/json" id="chart-data">$chart_json</script>
+<script src="app.js"></script>
+</body>
+</html>
